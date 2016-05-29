@@ -1,0 +1,7 @@
+composer.lock
+.env
+
+/tests/build/
+/vendor/
+/schemas/
+/bin/
