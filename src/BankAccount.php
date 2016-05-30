@@ -3,5 +3,9 @@
 namespace Alegra;
 
 use Alegra\Http\Resource;
+use Alegra\Http\Restable;
 
-class BankAccount extends Resource {}
+class BankAccount extends Resource
+{
+    use Restable;
+}

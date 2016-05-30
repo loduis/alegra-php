@@ -3,5 +3,9 @@
 namespace Alegra;
 
 use Alegra\Http\Resource;
+use Alegra\Http\Restable;
 
-class Tax extends Resource {}
+class Tax extends Resource
+{
+    use Restable;
+}

@@ -69,7 +69,8 @@ class Client
         if ($id !== null) {
             $resources = $resources->where('id', $id)->first();
         } elseif (!count($resources) && $this->schemaExists(($fetchPath = $path . '.fetch'))) {
-            $resources->put($path, $resources = $this->createResourceFromSchema($fetchPath));
+            $resources = $this->createResourceFromSchema($fetchPath);
+            $this->putResource($path, $resources);
         }
 
         return new Response(200, [], $resources->toJson(JSON_PRETTY_PRINT));
@@ -126,10 +127,15 @@ class Client
     private function resources($path)
     {
         if (!$this->resources->has($path)) {
-            $this->resources->put($path, new Collection);
+            $this->putResource($path, new Collection);
         }
 
         return $this->resources->get($path);
+    }
+
+    private function putResource($path, $value)
+    {
+        $this->resources->put($path, $value);
     }
 
     private static function parsePath($path)

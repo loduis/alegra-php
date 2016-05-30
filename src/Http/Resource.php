@@ -6,7 +6,6 @@ use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
-use Illuminate\Support\Collection;
 
 abstract class Resource extends Fluent
 {
@@ -20,15 +19,13 @@ abstract class Resource extends Fluent
         parent::__construct(static::transforms($attributes));
     }
 
-    /**
-     * Fetch all resources
-     *
-     * @param  array|Arrayable $params
-     * @return array
-     */
-    public static function all($params = [])
+    protected static function instanceFromRequest($method, $id, $params = [])
     {
-        $response = static::request('GET', null, $params);
+        $response = static::request($method, $id, $params);
+
+        if (Arr::isAssoc($response)) {
+            return new static($response);
+        }
 
         $rows = [];
 
@@ -36,60 +33,7 @@ abstract class Resource extends Fluent
             $rows[] = new static($line);
         }
 
-        return Collection::make($rows);
-    }
-
-    /**
-     * Create a new resouce
-     *
-     * @param  array|Arrayable  $params
-     * @return static
-     */
-    public static function create($params)
-    {
-        $response = static::request('POST', null, $params);
-
-        return new static($response);
-    }
-
-    /**
-     * Fetch the resource specified in th id
-     *
-     * @param  int|string $id
-     * @return static
-     */
-    public static function fetch($id)
-    {
-        $response = static::request('GET', $id);
-
-        return new static($response);
-    }
-
-    /**
-     * Save the current resource.
-     *
-     * @return $this
-     */
-    public function save()
-    {
-        $method = $this->id === null ? 'POST' : 'PUT';
-        $this->combine(static::request($method, $this->id, $this));
-
-        return $this;
-    }
-
-    /**
-     * Detroy de current resource
-     *
-     * @return $this
-     */
-    public function delete()
-    {
-        $response  = static::request('DELETE', $this->id);
-
-        $this->attributes = [];
-
-        return $this;
+        return $rows;
     }
 
     /**
@@ -100,11 +44,8 @@ abstract class Resource extends Fluent
      * @param  array|Arrayable $params
      * @return array
      */
-    private static function request($method, $id, $params = [])
+    protected static function request($method, $id = null, $params = [])
     {
-
-        static::checkPrivateMethodCalled();
-
         $path = static::resolvePath()  . ($id ? "/$id" : '');
 
         return Client::request($method, $path, $params);
@@ -162,24 +103,6 @@ abstract class Resource extends Fluent
     }
 
     /**
-     * Check if the method can response to resource
-     * Yo need set static property $badMethods on the class resource
-     *
-     * @return void
-     */
-    protected static function checkPrivateMethodCalled()
-    {
-        if (static::propertyExists('privateMethods')) {
-            $trace  = Arr::last(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3));
-            $method = $trace['function'];
-            if (in_array($method, static::$privateMethods)) {
-                $class = static::class;
-                throw new BadMethodCallException("Method $method does not exist on $class.");
-            }
-        }
-    }
-
-    /**
      * Check if exists a property in the current resource
      *
      * @param  string $property
@@ -196,8 +119,10 @@ abstract class Resource extends Fluent
      * @param  array $attributes
      * @return void
      */
-    private function combine($attributes)
+    protected function combine($attributes)
     {
         $this->attributes = array_merge($this->toArray(), static::transforms($attributes));
+
+        return $this;
     }
 }
