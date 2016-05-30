@@ -68,28 +68,28 @@ abstract class Resource extends Fluent
     /**
      * Save the current resource.
      *
-     * @return bool
+     * @return $this
      */
     public function save()
     {
-        if ($this->id === null) {
-            $this->attributes = array_merge(
-                $this->toArray(),
-                static::request('POST', null, $this)
-            );
-        }
+        $method = $this->id === null ? 'POST' : 'PUT';
+        $this->combine(static::request($method, $this->id, $this));
+
+        return $this;
     }
 
     /**
      * Detroy de current resource
      *
-     * @return bool
+     * @return $this
      */
     public function delete()
     {
         $response  = static::request('DELETE', $this->id);
 
         $this->attributes = [];
+
+        return $this;
     }
 
     /**
@@ -188,5 +188,16 @@ abstract class Resource extends Fluent
     protected static function propertyExists($property)
     {
         return property_exists(static::class, $property);
+    }
+
+    /**
+     * Combine attributes in the current resource object
+     *
+     * @param  array $attributes
+     * @return void
+     */
+    private function combine($attributes)
+    {
+        $this->attributes = array_merge($this->toArray(), static::transforms($attributes));
     }
 }

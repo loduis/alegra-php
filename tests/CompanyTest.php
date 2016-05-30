@@ -10,4 +10,12 @@ class CompanyTest extends TestCase
     {
         $this->assertEquals('company', Company::resolvePath());
     }
+
+    public function testFetch()
+    {
+        $company = Company::fetch();
+        $this->assertArrayHasKey('name', $company);
+        $this->assertArrayHasKey('identification', $company);
+        $this->assertInstanceOf(Company::class, $company);
+    }
 }

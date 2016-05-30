@@ -68,6 +68,8 @@ class Client
 
         if ($id !== null) {
             $resources = $resources->where('id', $id)->first();
+        } elseif (!count($resources) && $this->schemaExists(($fetchPath = $path . '.fetch'))) {
+            $resources->put($path, $resources = $this->createResourceFromSchema($fetchPath));
         }
 
         return new Response(200, [], $resources->toJson(JSON_PRETTY_PRINT));
@@ -83,7 +85,7 @@ class Client
     private function post($path, $options)
     {
         $resources   = $this->resources($path);
-        $model       = $this->mergeSchema($path, $options['json']);
+        $model       = $this->createResourceFromSchema($path, $options['json']);
         $model['id'] = count($resources) + 1;
 
         $resources->push($model);
@@ -126,7 +128,7 @@ class Client
         if (!$this->resources->has($path)) {
             $this->resources->put($path, new Collection);
         }
-        
+
         return $this->resources->get($path);
     }
 
@@ -140,10 +142,22 @@ class Client
         return [$path, $id];
     }
 
-    private function mergeSchema($path, array $merge = [])
+    private function createResourceFromSchema($path, array $merge = [])
     {
-        $content = file_get_contents($this->schemaPath . '/' . $path . '.json');
+        $filename = $this->schemaFile($path);
+        $content = file_get_contents($filename);
+        $data = json_decode($content, true);
 
-        return new Fluent(array_merge(json_decode($content, true), $merge));
+        return new Fluent(array_merge($data, $merge));
+    }
+
+    private function schemaExists($path)
+    {
+        return file_exists($this->schemaFile($path));
+    }
+
+    private function schemaFile($path)
+    {
+        return $this->schemaPath . '/' . $path . '.json';
     }
 }
