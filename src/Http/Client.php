@@ -20,29 +20,21 @@ class Client
 
     public static function request($method, $path, $params = [])
     {
-        $response = static::get()->request(
+        return static::get()->request(
             $method = strtoupper($method),
             $path,
             static::resolveParameters($method, $params)
         );
-
-        return in_array($method, ['GET', 'POST', 'PUT', 'PATCH']) ?
-            json_decode($response->getBody(), true) : $response;
     }
 
     /**
      * Set the htpp client for request resource.
      *
-     * @param string $clientClass
      * @param array $options
      */
-    public static function set($client, array $options = [])
+    public static function create(array $options = [])
     {
-        if ($client instanceof ClientInterface) {
-            return static::$transport = $client;
-        }
-
-        static::$transport = new $client(array_merge(
+        $options = array_merge(
             [
                 'base_uri' => Api::baseUri(),
                 'auth'     => Api::auth(),
@@ -51,7 +43,9 @@ class Client
                 ]
             ],
             $options
-        ));
+        );
+
+        return static::$transport = new HttpClient($options);
     }
 
     /**
@@ -61,11 +55,7 @@ class Client
      */
     protected static function get()
     {
-        if (!static::$transport) {
-            static::set(HttpClient::class);
-        }
-
-        return static::$transport;
+        return static::$transport ?: static::create();
     }
 
     /**

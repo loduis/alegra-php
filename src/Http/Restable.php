@@ -2,6 +2,7 @@
 
 namespace Alegra\Http;
 
+use UnexpectedValueException;
 use Illuminate\Support\Collection;
 
 trait Restable
@@ -14,9 +15,7 @@ trait Restable
      */
     public static function all($params = [])
     {
-        $rows = static::instanceFromRequest('GET', null, $params);
-
-        return Collection::make($rows);
+        return Collection::make(static::createFromRequest('GET', null, $params));
     }
 
     /**
@@ -27,18 +26,22 @@ trait Restable
      */
     public static function create($params)
     {
-        return static::instanceFromRequest('POST', null, $params);
+        return static::createFromRequest('POST', null, $params);
     }
 
     /**
-     * Fetch the resource specified in th id
+     * Fetch the resource by id
      *
      * @param  int|string $id
      * @return static
      */
     public static function fetch($id)
     {
-        return static::instanceFromRequest('GET', $id);
+        if (!$id) {
+            throw new UnexpectedValueException('The id parameter is required.');
+        }
+
+        return static::createFromRequest('GET', $id);
     }
 
     /**
@@ -48,10 +51,10 @@ trait Restable
      */
     public function save()
     {
-        $method = $this->id === null ? 'POST' : 'PUT';
-        $attributes = static::request($method, $this->id, $this);
+        $id = $this->id;
+        $method = $id === null ? 'POST' : 'PUT';
 
-        return $this->combine($attributes);
+        return $this->store($method, $id);
     }
 
     /**
@@ -61,7 +64,11 @@ trait Restable
      */
     public function delete()
     {
-        $response  = static::request('DELETE', $this->id);
+        if (!$this->id) {
+            throw new UnexpectedValueException('The id attribute is required.');
+        }
+
+        static::request('DELETE', $this->id);
 
         $this->attributes = [];
 

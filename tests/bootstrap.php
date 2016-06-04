@@ -15,7 +15,7 @@ namespace GuzzleHttp {
      * @throws \InvalidArgumentException if the JSON cannot be decoded.
      * @link http://www.php.net/manual/en/function.json-decode.php
      */
-    if (!function_exists('json_decode')) {
+    //if (!function_exists('json_decode')) {
         function json_decode($json, $assoc = false, $depth = 512, $options = 0)
         {
             $data = \json_decode($json, $assoc, $depth, $options);
@@ -26,7 +26,7 @@ namespace GuzzleHttp {
 
             return $data;
         }
-    }
+    //}
 
     /**
      * Wrapper for JSON encoding that throws when an error occurs.
@@ -39,7 +39,7 @@ namespace GuzzleHttp {
      * @throws \InvalidArgumentException if the JSON cannot be encoded.
      * @link http://www.php.net/manual/en/function.json-encode.php
      */
-    if (!function_exists('json_encode')) {
+    //if (!function_exists('json_encode')) {
         function json_encode($value, $options = 0, $depth = 512)
         {
             $json = \json_encode($value, $options, $depth);
@@ -50,7 +50,7 @@ namespace GuzzleHttp {
 
             return $json;
         }
-    }
+    //}
 }
 
 namespace {

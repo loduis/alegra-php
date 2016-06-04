@@ -2,7 +2,6 @@
 
 namespace Alegra\Http;
 
-use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
@@ -10,18 +9,34 @@ use Illuminate\Support\Fluent;
 abstract class Resource extends Fluent
 {
     /**
-     * Create a new instance of resource
+     * Create a new resource  instance.
      *
-     * @param array $attributes
+     * @param  mixed    $attributes
+     * @return void
      */
     public function __construct($attributes = [])
     {
-        parent::__construct(static::transforms($attributes));
+        if (is_scalar($attributes)) {
+            $attributes = [
+                'id' => $attributes
+            ];
+        }
+
+        parent::__construct($attributes);
     }
 
-    protected static function instanceFromRequest($method, $id, $params = [])
+
+    /**
+     * Create instance from reques
+     *
+     * @param  string $method
+     * @param  null|int|string $id
+     * @param  array|Arrayable $params
+     * @return $this|array
+     */
+    protected static function createFromRequest($method, $id = null, $params = [])
     {
-        $response = static::request($method, $id, $params);
+        $response = static::requestJson($method, $id, $params);
 
         if (Arr::isAssoc($response)) {
             return new static($response);
@@ -37,6 +52,20 @@ abstract class Resource extends Fluent
     }
 
     /**
+     * Store and refresh object
+     *
+     * @param  string $method
+     * @param  int|string $id
+     * @return $this
+     */
+    protected function store($method, $id = null)
+    {
+        $attributes = static::requestJson($method, $id, $this);
+
+        return $this->mergeAttributes($attributes);
+    }
+
+    /**
      * Invoke the request of the current resource
      *
      * @param  string $method
@@ -49,6 +78,21 @@ abstract class Resource extends Fluent
         $path = static::resolvePath()  . ($id ? "/$id" : '');
 
         return Client::request($method, $path, $params);
+    }
+
+    /**
+     * Request to json object
+     *
+     * @param  string $method
+     * @param  null|int|string $id
+     * @param  array|Arrayable $params
+     * @return array
+     */
+    protected static function requestJson($method, $id = null, $params = [])
+    {
+        $response = static::request($method , $id, $params);
+
+        return static::transforms(json_decode($response->getBody(), true));
     }
 
     /**
@@ -119,9 +163,9 @@ abstract class Resource extends Fluent
      * @param  array $attributes
      * @return void
      */
-    protected function combine($attributes)
+    protected function mergeAttributes($attributes)
     {
-        $this->attributes = array_merge($this->toArray(), static::transforms($attributes));
+        $this->attributes = array_merge($this->toArray(), $attributes);
 
         return $this;
     }

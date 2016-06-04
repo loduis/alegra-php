@@ -70,7 +70,6 @@ class ContactTest extends TestCase
 
     public function testAll()
     {
-        $this->registerMockClient();
         $contacts = Contact::all();
         $contacts->each(function ($contact) {
             $this->assertInstanceOf(Contact::class, $contact);
@@ -82,8 +81,26 @@ class ContactTest extends TestCase
     public function testDelete()
     {
         $contact   = Contact::create(['name' => 'Prueba']);
-        $id        = $contact->id;
         $contact->delete();
         $this->assertSame(null, $contact->id);
+    }
+
+    public function testSave()
+    {
+        $contact = Contact::create([
+            'name' => 'test'
+        ]);
+
+        $name = $contact->name;
+
+        $this->assertNotNull($name);
+
+        $contact->name = 'Other test';
+
+        $contact->save();
+
+        $this->assertNotNull($contact->name);
+
+        $this->assertNotEquals($contact->name, $name);
     }
 }

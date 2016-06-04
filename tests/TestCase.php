@@ -5,9 +5,6 @@ namespace Alegra\Tests;
 use Alegra\Api;
 use Mockery as m;
 use Faker\Factory as Faker;
-use GuzzleHttp\ClientInterface;
-use Alegra\Http\Client as HttpClient;
-use Alegra\Tests\Http\Client as HttpClientMock;
 
 /**
  * Base class for Alegra test cases, provides some utility methods for creating
@@ -19,30 +16,21 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $apiUser = getenv('ALEGRA_API_USER');
-        $apiKey = getenv('ALEGRA_API_KEY');
+        $apiUser = getenv('API_USER');
+        $apiKey = getenv('API_KEY');
         Api::version(1);
         Api::auth($apiUser, $apiKey);
 
-        $this->registerMockClient();
+        // If is live run over the alegra server
+        if (getenv('API_ENV') !== 'live') {
+            Http\Client::register(__DIR__ . '/schemas');
+        }
 
         $this->faker = Faker::create('es_ES');
     }
 
-    public function tearDown()
+    protected function assertPrivate($class, $method)
     {
-        m::close();
+        $this->assertTrue((new \ReflectionClass($class))->getMethod($method)->isPrivate());
     }
-
-    protected function registerMockClient()
-    {
-        $client   = m::mock(ClientInterface::class);
-        $client->shouldReceive('request')
-            ->andReturnUsing(function ($method, $path, $options) {
-                return HttpClientMock::create(__DIR__ . '/schemas')
-                    ->request($method, $path, $options);
-            });
-
-        HttpClient::set($client);
-    }
- }
+}
