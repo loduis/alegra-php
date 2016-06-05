@@ -3,7 +3,7 @@
 namespace Alegra\Http;
 
 use UnexpectedValueException;
-use Illuminate\Support\Collection;
+use Alegra\Http\Eloquent\Collection;
 
 trait Restable
 {
@@ -26,7 +26,7 @@ trait Restable
      */
     public static function create($params)
     {
-        return static::createFromRequest('POST', null, $params);
+        return static::createFromRequest('POST', null, new static($params));
     }
 
     /**

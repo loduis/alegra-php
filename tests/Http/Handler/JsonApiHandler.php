@@ -6,7 +6,6 @@ use ReflectionFunction;
 use Illuminate\Support\Str;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\TransferStats;
-use Illuminate\Support\Fluent;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
@@ -147,7 +146,7 @@ class JsonApiHandler
             $resources->push($resource);
         } else {
             $status   = 200;
-            $resource = new Fluent;
+            $resource = [];
         }
 
         return $this->createResponse($status, $resource);
@@ -205,7 +204,7 @@ class JsonApiHandler
                 return $key;
             }
         });
-        $resource = new Fluent;
+        $resource = [];
         if ($index !== null) {
             $resources->forget($index);
         } else {
@@ -217,9 +216,7 @@ class JsonApiHandler
 
     private function merge($resource, $options)
     {
-        $resource = array_merge($resource->toArray(), $options['json']);
-
-        return new Fluent($resource);
+        return FileHandle::arrayMerge($resource, $options['json']);
     }
 
     protected function prepareRequest($request, array &$options)
@@ -260,6 +257,6 @@ class JsonApiHandler
 
     private function createResponse($status, $resource)
     {
-        return new Response($status, ['Content-Type' => 'application/json'], $resource->toJson(JSON_PRETTY_PRINT));
+        return new Response($status, ['Content-Type' => 'application/json'], json_encode($resource, JSON_PRETTY_PRINT));
     }
 }

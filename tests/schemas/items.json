@@ -1,0 +1,18 @@
+{
+    "id": null,
+    "name": null,
+    "description": null,
+    "reference": null,
+    "category": {
+        "id": 3,
+        "name": "Ventas"
+    },
+    "price": [
+        {
+            "idPriceList": null,
+            "name": "Principal",
+            "price": null
+        }
+    ],
+    "tax": []
+}

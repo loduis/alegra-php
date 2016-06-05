@@ -30,24 +30,6 @@ class ContactTest extends TestCase
         $this->assertNotNull($contact->id);
     }
 
-    public function testCreateUsingFluent()
-    {
-        // With fluent instance
-        $contact = Contact::create(new Fluent([
-            'name'           => $this->faker->name,
-            'identification' => $this->faker->dni,
-            'email'          => $this->faker->email,
-            'phonePrimary'   => $this->faker->phoneNumber,
-            'phoneSecondary' => $this->faker->phoneNumber,
-            'fax'            => $this->faker->e164PhoneNumber,
-            'mobile'         => $this->faker->e164PhoneNumber,
-            'observations'   => $this->faker->text
-        ]));
-        $this->assertInstanceOf(Contact::class, $contact);
-        $this->assertNotNull($contact->id);
-
-    }
-
     public function testCreateUsingContactConstructor()
     {
         $contact = new Contact;

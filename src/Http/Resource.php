@@ -4,9 +4,9 @@ namespace Alegra\Http;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Fluent;
+use Alegra\Http\Eloquent\Model;
 
-abstract class Resource extends Fluent
+abstract class Resource extends Model
 {
     /**
      * Create a new resource  instance.
@@ -18,7 +18,7 @@ abstract class Resource extends Fluent
     {
         if (is_scalar($attributes)) {
             $attributes = [
-                'id' => $attributes
+                $this->getKeyName() => $attributes
             ];
         }
 

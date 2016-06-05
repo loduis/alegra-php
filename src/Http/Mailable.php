@@ -4,6 +4,7 @@ namespace Alegra\Http;
 
 use BadMethodCallException;
 use Illuminate\Support\Arr;
+use Alegra\Http\Eloquent\Mail;
 
 /**
  * adds the ability to appeal to be sent by email
@@ -55,7 +56,7 @@ trait Mailable
     protected static function mailRaw($resource)
     {
         if (!static::isResource($resource)) {
-            $resource = new static(['id' => $resource]);
+            $resource = new static($resource);
         }
 
         return new Mail($resource);

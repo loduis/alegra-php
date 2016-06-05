@@ -1,6 +1,8 @@
 <?php
 
-namespace Alegra\Http;
+namespace Alegra\Http\Eloquent;
+
+use Alegra\Http\Resource;
 
 /**
  * User Friendly emal handle.

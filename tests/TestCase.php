@@ -22,7 +22,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         Api::auth($apiUser, $apiKey);
 
         // If is live run over the alegra server
-        if (getenv('API_ENV') !== 'live') {
+        $mode = getenv('API_ENV');
+        if ($_SERVER['argc'] === 3) {
+            $mode = $_SERVER['argv'][2];
+        }
+        if ($mode !== 'live') {
             Http\Client::register(__DIR__ . '/schemas');
         }
 
@@ -32,5 +36,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     protected function assertPrivate($class, $method)
     {
         $this->assertTrue((new \ReflectionClass($class))->getMethod($method)->isPrivate());
+    }
+
+    protected function faker($property)
+    {
+        return $this->faker->$property;
     }
 }

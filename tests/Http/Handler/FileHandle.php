@@ -2,7 +2,6 @@
 
 namespace Alegra\Tests\Http\Handler;
 
-use Illuminate\Support\Fluent;
 use Illuminate\Support\Collection;
 
 class FileHandle
@@ -19,16 +18,30 @@ class FileHandle
 
     public function merge($path, array $data)
     {
-        return new Fluent(array_merge($this->get($path), $data));
+        return static::arrayMerge($this->get($path), $data);
+    }
+
+    public static function arrayMerge(array $array1, array $array2)
+    {
+        foreach ($array1 as $key => $value) {
+            if (array_key_exists($key, $array2)) {
+                if (is_array($value)) {
+                    $array2[$key] = static::arrayMerge($value, (array) $array2[$key]);
+                }
+                continue;
+            }
+            $array2[$key] = $value;
+        }
+
+        return $array2;
     }
 
     public function fetch($path)
     {
         $path .= '.fetch';
         if ($this->exists($path)) {
-            return new Fluent($this->get($path));
+            return $this->get($path);
         }
-
     }
 
     public function get($path)
