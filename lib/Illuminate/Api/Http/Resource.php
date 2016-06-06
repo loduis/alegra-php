@@ -1,10 +1,11 @@
 <?php
 
-namespace Alegra\Http;
+namespace Illuminate\Api\Http;
 
+use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-use Alegra\Http\Eloquent\Model;
+use Illuminate\Api\Resource\Model;
 
 abstract class Resource extends Model
 {
@@ -31,7 +32,7 @@ abstract class Resource extends Model
      *
      * @param  string $method
      * @param  null|int|string $id
-     * @param  array|Arrayable $params
+     * @param  array|\Illuminate\Support\Arrayable $params
      * @return $this|array
      */
     protected static function createFromRequest($method, $id = null, $params = [])
@@ -44,7 +45,7 @@ abstract class Resource extends Model
 
         $rows = [];
 
-        foreach ($response  as $line) {
+        foreach ($response as $line) {
             $rows[] = new static($line);
         }
 
@@ -90,9 +91,9 @@ abstract class Resource extends Model
      */
     protected static function requestJson($method, $id = null, $params = [])
     {
-        $response = static::request($method , $id, $params);
+        $response = static::request($method, $id, $params);
 
-        return static::transforms(json_decode($response->getBody(), true));
+        return json_decode($response->getBody(), true);
     }
 
     /**
@@ -127,26 +128,6 @@ abstract class Resource extends Model
     }
 
     /**
-     * Transforms the specified attributes on the property $transforms
-     * to resource objects
-     *
-     * @param  array $attributes
-     * @return array
-     */
-    protected static function transforms($attributes)
-    {
-        if (static::propertyExists('transforms')) {
-            foreach (static::$transforms as $field => $transformClass) {
-                if (Arr::has($attributes, $field)) {
-                    $attributes[$field] = new $transformClass($attributes[$field]);
-                }
-            }
-        }
-
-        return $attributes;
-    }
-
-    /**
      * Check if exists a property in the current resource
      *
      * @param  string $property
@@ -168,5 +149,50 @@ abstract class Resource extends Model
         $this->attributes = array_merge($this->toArray(), $attributes);
 
         return $this;
+    }
+
+    /**
+     * Dynamically handle calls to the class.
+     *
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    public static function __callStatic($method, $params)
+    {
+        return static::callMethod(static::class, $method, $params);
+    }
+
+    /**
+     * Dynamically handle calls to the class.
+     *
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    public function __call($method, $params)
+    {
+        array_unshift($params, $this);
+
+        return static::callMethod($this, $method, $params);
+    }
+
+    /**
+     * Call a raw method
+     *
+     * @param  static|$this $objectOrClass
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    private static function callMethod($objectOrClass, $method, $params)
+    {
+        $method .= 'Raw';
+
+        if (!method_exists($objectOrClass, $method)) {
+            throw new BadMethodCallException("Method {$method} does not exist.");
+        }
+
+        return call_user_func_array([$objectOrClass, $method], $params);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-use Alegra\Http\Eloquent\Collection;
+use Illuminate\Api\Resource\Collection;
 
 class PriceList extends Collection
 {
@@ -14,7 +14,7 @@ class PriceList extends Collection
      */
     public function __construct($items = [])
     {
-        foreach ($items as $item) {
+        foreach ((array) $items as $item) {
             $this->add($item);
         }
     }
@@ -27,6 +27,12 @@ class PriceList extends Collection
      */
     public function add($item)
     {
+        if (is_numeric($item)) {
+            $item = [
+                'id' => 1,
+                'price' => $item
+            ];
+        }
         if (!$item instanceof Price) {
             $item = new Price($item);
         }
@@ -35,5 +41,4 @@ class PriceList extends Collection
 
         return $this;
     }
-
 }

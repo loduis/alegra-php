@@ -1,10 +1,7 @@
 <?php
 
-namespace Alegra\Http;
+namespace Illuminate\Api\Http;
 
-use Alegra\Api;
-use Illuminate\Support\Arr;
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Client as HttpClient;
 use Illuminate\Contracts\Support\Arrayable;
 
@@ -36,8 +33,6 @@ class Client
     {
         $options = array_merge(
             [
-                'base_uri' => Api::baseUri(),
-                'auth'     => Api::auth(),
                 'headers' => [
                     'Accept' => 'application/json'
                 ]
@@ -67,13 +62,11 @@ class Client
     private static function resolveParameters($method, $params)
     {
         $options = [];
-
         if ($params instanceof Arrayable) {
             $params = $params->toArray();
         } else {
             $params = (array) $params;
         }
-
         if ($params) {
             $options[$method === 'GET' ? 'query' : 'json'] = $params;
         }

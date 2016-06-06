@@ -2,9 +2,10 @@
 
 namespace Alegra;
 
-use Alegra\Http\Resource;
-use Alegra\Http\Restable;
-use Alegra\Http\Mailable;
+use Alegra\Support\Mailable;
+use Illuminate\Api\Http\Resource;
+use Illuminate\Api\Http\Restable;
+
 
 class Invoice extends Resource
 {

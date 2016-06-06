@@ -1,16 +1,19 @@
 <?php
 
-namespace Alegra\Http;
+namespace Illuminate\Api\Http;
 
 use UnexpectedValueException;
-use Alegra\Http\Eloquent\Collection;
+use Illuminate\Api\Resource\Collection;
 
+/**
+ * Add ability of rest resurce
+ */
 trait Restable
 {
     /**
      * Fetch all resources
      *
-     * @param  array|Arrayable $params
+     * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return array
      */
     public static function all($params = [])
@@ -21,7 +24,7 @@ trait Restable
     /**
      * Create a new resouce
      *
-     * @param  array|Arrayable  $params
+     * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return static
      */
     public static function create($params)

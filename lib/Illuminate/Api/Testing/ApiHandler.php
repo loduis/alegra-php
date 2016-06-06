@@ -1,6 +1,6 @@
 <?php
 
-namespace Alegra\Tests\Http\Handler;
+namespace Illuminate\Api\Testing;
 
 use ReflectionFunction;
 use Illuminate\Support\Str;
@@ -9,8 +9,11 @@ use GuzzleHttp\TransferStats;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
+use Illuminate\Api\Testing\Handlers\FileHandle;
+use Illuminate\Api\Testing\Handlers\ArrayHandle;
+use Illuminate\Api\Testing\Handlers\CallableHandle;
 
-class JsonApiHandler
+class ApiHandler
 {
     private $files;
 
@@ -216,7 +219,7 @@ class JsonApiHandler
 
     private function merge($resource, $options)
     {
-        return FileHandle::arrayMerge($resource, $options['json']);
+        return FileHandle::arrayMerge($resource, (array) $options['json']);
     }
 
     protected function prepareRequest($request, array &$options)
@@ -228,7 +231,7 @@ class JsonApiHandler
         if ($method === 'GET') {
             parse_str($uri->getQuery(), $options['query']);
         } else {
-            $body = $request->getBody()->getContents();
+            $body = (string) $request->getBody();
             $options['json'] = json_decode($body, true);
         }
 

@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-use Alegra\Http\Eloquent\Model;
+use Illuminate\Api\Resource\Model;
 
 class Price extends Model
 {

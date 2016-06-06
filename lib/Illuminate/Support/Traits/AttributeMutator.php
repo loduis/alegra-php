@@ -1,6 +1,6 @@
 <?php
 
-namespace Alegra\Support;
+namespace Illuminate\Support\Traits;
 
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Support\Arrayable;
@@ -109,9 +109,12 @@ trait AttributeMutator
             foreach ($matches[1] as $match) {
                 if (static::$snakeAttributes) {
                     $match = Str::snake($match);
+                    $match = lcfirst($match);
+                } elseif (($match = lcfirst($match)) != ($snake = Str::snake($match))) {
+                    $mutatedAttributes[] = $snake;
                 }
 
-                $mutatedAttributes[] = lcfirst($match);
+                $mutatedAttributes[] = $match;
             }
         }
 

@@ -1,15 +1,16 @@
 <?php
 
-namespace Alegra\Http\Eloquent;
+namespace Illuminate\Api\Resource;
 
 use ArrayAccess;
 use JsonSerializable;
 use DateTimeInterface;
-use Alegra\Support\AttributeAccess;
-use Alegra\Support\AttributeMutator;
-use Alegra\Support\AttributeCastable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Traits\AttributeAccess;
+use Illuminate\Support\Traits\AttributeMutator;
+use Illuminate\Support\Traits\AttributeCastable;
+use Illuminate\Support\Traits\AttributeTransformer;
 
 class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
@@ -32,7 +33,7 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      *
      * @var string
      */
-    protected $dateFormat;
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     /**
      * The model's attributes.
@@ -56,6 +57,11 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Add ability for casting attributes
      */
     use AttributeCastable;
+
+    /**
+     * Add ability for transform attributes
+     */
+    use AttributeTransformer;
 
     /**
      * Create a new Eloquent model instance.
@@ -261,7 +267,9 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         // First we will check for the presence of a mutator for the set operation
         // which simply lets the developers tweak the attribute as it is set on
         // the model, such as "json_encoding" an listing of data for storage.
-        if ($this->hasSetMutator($key)) {
+        if ($this->hasTransformer($key)) {
+            return $this->transformAttribute($key, $value);
+        } elseif ($this->hasSetMutator($key)) {
             return $this->mutatingAttribute($key, $value);
         } elseif ($value && $this->isDateCastable($key)) {
             // If an attribute is listed as a "date", we'll convert it from a DateTime

@@ -1,24 +1,20 @@
 <?php
 
-namespace Alegra\Tests\Http\Eloquent;
-
-use StdClass;
-use Carbon\Carbon;
+use Mockery as m;
 use Alegra\Tests\TestCase;
-use Alegra\Http\Eloquent\Model;
+use Illuminate\Api\Resource\Model;
 
-
-class ModelTest extends TestCase
+class ApiResourceModelTest extends TestCase
 {
     public function tearDown()
     {
         parent::tearDown();
-        Carbon::resetToStringFormat();
+        Carbon\Carbon::resetToStringFormat();
     }
 
-    public function itestAttributeManipulation()
+    public function testAttributeManipulation()
     {
-        $model = new HttpResourceModelStub;
+        $model = new ResourceModelStub;
         $model->name = 'foo';
         $this->assertEquals('foo', $model->name);
         $this->assertTrue(isset($model->name));
@@ -32,9 +28,96 @@ class ModelTest extends TestCase
         $this->assertEquals(json_encode(['name' => 'taylor']), $attributes['list_items']);
     }
 
-    public function itestModelAttributesAreCastedWhenPresentInCastsArray()
+    public function testCalculatedAttributes()
     {
-        $model = new HttpResourceModelCastingStub;
+        $model = new ResourceModelStub;
+        $model->password = 'secret';
+        $attributes = $model->getAttributes();
+
+        // ensure password attribute was not set to null
+        $this->assertArrayNotHasKey('password', $attributes);
+        $this->assertEquals('******', $model->password);
+
+        $hash = 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4';
+
+        $this->assertEquals($hash, $attributes['password_hash']);
+        $this->assertEquals($hash, $model->password_hash);
+    }
+
+    public function testFromDateTime()
+    {
+        $model = new ResourceModelStub();
+
+        $value = Carbon\Carbon::parse('2015-04-17 22:59:01');
+        $this->assertEquals('2015-04-17 22:59:01', $model->fromDateTime($value));
+
+        $value = new DateTime('2015-04-17 22:59:01');
+        $this->assertInstanceOf(DateTime::class, $value);
+        $this->assertInstanceOf(DateTimeInterface::class, $value);
+        $this->assertEquals('2015-04-17 22:59:01', $model->fromDateTime($value));
+
+        $value = new DateTimeImmutable('2015-04-17 22:59:01');
+        $this->assertInstanceOf(DateTimeImmutable::class, $value);
+        $this->assertInstanceOf(DateTimeInterface::class, $value);
+        $this->assertEquals('2015-04-17 22:59:01', $model->fromDateTime($value));
+
+        $value = '2015-04-17 22:59:01';
+        $this->assertEquals('2015-04-17 22:59:01', $model->fromDateTime($value));
+
+        $value = '2015-04-17';
+        $this->assertEquals('2015-04-17 00:00:00', $model->fromDateTime($value));
+
+        $value = '2015-4-17';
+        $this->assertEquals('2015-04-17 00:00:00', $model->fromDateTime($value));
+
+        $value = '1429311541';
+        $this->assertEquals('2015-04-17 22:59:01', $model->fromDateTime($value));
+    }
+
+    public function testGetKeyReturnsValueOfPrimaryKey()
+    {
+        $model = new ResourceModelStub;
+        $model->id = 1;
+        $this->assertEquals(1, $model->getKey());
+        $this->assertEquals('id', $model->getKeyName());
+    }
+
+    public function testTheMutatorCacheIsPopulated()
+    {
+        ResourceModelStub::$snakeAttributes = true;
+        $class = new ResourceModelStub;
+        $expectedAttributes = [
+            'list_items',
+            'password'
+        ];
+
+        $this->assertEquals($expectedAttributes, $class->getMutatedAttributes());
+    }
+
+    public function testGetMutatedAttributes()
+    {
+        $model = new ResourceModelGetMutatorsStub;
+
+        $this->assertEquals(['first_name', 'middle_name', 'last_name'], $model->getMutatedAttributes());
+
+        ResourceModelGetMutatorsStub::resetMutatorCache();
+
+        ResourceModelGetMutatorsStub::$snakeAttributes = false;
+        $this->assertEquals(['first_name', 'firstName', 'middle_name', 'middleName', 'last_name', 'lastName'], $model->getMutatedAttributes());
+    }
+
+    public function testToArrayUsesMutators()
+    {
+        $model = new ResourceModelStub;
+        $model->list_items = [1, 2, 3];
+        $array = $model->toArray();
+
+        $this->assertEquals([1, 2, 3], $array['list_items']);
+    }
+
+    public function testModelAttributesAreCastedWhenPresentInCastsArray()
+    {
+        $model = new ResourceModelCastingStub;
         $model->setDateFormat('Y-m-d H:i:s');
         $model->intAttribute = '3';
         $model->floatAttribute = '4.0';
@@ -49,6 +132,7 @@ class ModelTest extends TestCase
         $model->dateAttribute = '1969-07-20';
         $model->datetimeAttribute = '1969-07-20 22:56:00';
         $model->timestampAttribute = '1969-07-20 22:56:00';
+
         $this->assertInternalType('int', $model->intAttribute);
         $this->assertInternalType('float', $model->floatAttribute);
         $this->assertInternalType('string', $model->stringAttribute);
@@ -68,6 +152,7 @@ class ModelTest extends TestCase
         $this->assertEquals('1969-07-20', $model->dateAttribute->toDateString());
         $this->assertEquals('1969-07-20 22:56:00', $model->datetimeAttribute->toDateTimeString());
         $this->assertEquals(-14173440, $model->timestampAttribute);
+
         $arr = $model->toArray();
         $this->assertInternalType('int', $arr['intAttribute']);
         $this->assertInternalType('float', $arr['floatAttribute']);
@@ -87,9 +172,9 @@ class ModelTest extends TestCase
         $this->assertEquals(-14173440, $arr['timestampAttribute']);
     }
 
-    public function itestModelAttributeCastingPreservesNull()
+    public function testModelAttributeCastingPreservesNull()
     {
-        $model = new HttpResourceModelStub;
+        $model = new ResourceModelCastingStub;
         $model->intAttribute = null;
         $model->floatAttribute = null;
         $model->stringAttribute = null;
@@ -101,7 +186,9 @@ class ModelTest extends TestCase
         $model->dateAttribute = null;
         $model->datetimeAttribute = null;
         $model->timestampAttribute = null;
+
         $attributes = $model->getAttributes();
+
         $this->assertNull($attributes['intAttribute']);
         $this->assertNull($attributes['floatAttribute']);
         $this->assertNull($attributes['stringAttribute']);
@@ -113,6 +200,7 @@ class ModelTest extends TestCase
         $this->assertNull($attributes['dateAttribute']);
         $this->assertNull($attributes['datetimeAttribute']);
         $this->assertNull($attributes['timestampAttribute']);
+
         $this->assertNull($model->intAttribute);
         $this->assertNull($model->floatAttribute);
         $this->assertNull($model->stringAttribute);
@@ -124,7 +212,9 @@ class ModelTest extends TestCase
         $this->assertNull($model->dateAttribute);
         $this->assertNull($model->datetimeAttribute);
         $this->assertNull($model->timestampAttribute);
+
         $array = $model->toArray();
+
         $this->assertNull($array['intAttribute']);
         $this->assertNull($array['floatAttribute']);
         $this->assertNull($array['stringAttribute']);
@@ -137,31 +227,9 @@ class ModelTest extends TestCase
         $this->assertNull($array['datetimeAttribute']);
         $this->assertNull($array['timestampAttribute']);
     }
-
-    public function itestGetMutatedAttributes()
-    {
-        $model = new HttpResourceModelGetMutatorsStub;
-
-        $this->assertEquals(['first_name', 'middle_name', 'last_name'], $model->getMutatedAttributes());
-
-        HttpResourceModelGetMutatorsStub::resetMutatorCache();
-
-        HttpResourceModelGetMutatorsStub::$snakeAttributes = false;
-        $this->assertEquals(['firstName', 'middleName', 'lastName'], $model->getMutatedAttributes());
-    }
-
-    public function testToArrayUsesMutators()
-    {
-        HttpResourceModelStub::$snakeAttributes = true;
-
-        $model = new HttpResourceModelStub;
-        $model->list_items = [1, 2, 3];
-        $array = $model->toArray();
-        $this->assertEquals([1, 2, 3], $array['list_items']);
-    }
 }
 
-class HttpResourceModelStub extends Model
+class ResourceModelStub extends Model
 {
     public function getListItemsAttribute($value)
     {
@@ -184,12 +252,7 @@ class HttpResourceModelStub extends Model
     }
 }
 
-class HttpResourceModelCamelStub extends Model
-{
-    public static $snakeAttributes = false;
-}
-
-class HttpResourceModelGetMutatorsStub extends Model
+class ResourceModelGetMutatorsStub extends Model
 {
     public static function resetMutatorCache()
     {
@@ -225,9 +288,9 @@ class HttpResourceModelGetMutatorsStub extends Model
     }
 }
 
-class HttpResourceModelCastingStub extends Model
+class ResourceModelCastingStub extends Model
 {
-    protected $casts = [
+    protected static $casts = [
         'intAttribute' => 'int',
         'floatAttribute' => 'float',
         'stringAttribute' => 'string',

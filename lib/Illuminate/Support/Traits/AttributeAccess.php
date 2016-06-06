@@ -1,9 +1,16 @@
 <?php
 
-namespace Alegra\Support;
+namespace Illuminate\Support\Traits;
 
 trait AttributeAccess
 {
+    /**
+     * Get all of the current attributes on the model.
+     *
+     * @return array
+     */
+    abstract public function getAttributes();
+
     /**
      * Set a given attribute on the model.
      *

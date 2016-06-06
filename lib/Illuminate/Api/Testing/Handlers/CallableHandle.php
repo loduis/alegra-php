@@ -1,6 +1,6 @@
 <?php
 
-namespace Alegra\Tests\Http\Handler;
+namespace Illuminate\Api\Testing\Handlers;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;

@@ -2,84 +2,46 @@
 
 namespace Alegra;
 
+use BadMethodCallException;
+use Illuminate\Api\Http\Api as HttpApi;
+
 class Api
 {
     /**
      * The current version of api
+     *
+     * @var int
      */
     const VERSION  = 1;
 
     /**
      * The base path of api
+     *
+     * @var string
      */
     const BASE_URI = 'https://app.alegra.com/api/';
 
-    /**
-     * The user for auth on api
-     *
-     * @var string
-     */
-    private static $user;
-
-    /**
-     * The api token for auth
-     *
-     * @var string
-     */
-    private static $token;
-
-    /**
-     * Custom version of api for future request
-     *
-     * @var int
-     */
-    private static $version = self::VERSION;
-
-    /**
-     * Set and get the current version of api
-     *
-     * @param  null|int $number
-     * @return void|int
-     */
-    public static function version($number = null)
-    {
-        if ($number === null) {
-            return static::$version;
-        }
-
-        static::$version = (int) $number;
-    }
-
-    /**
-     * Get the base path of api
-     *
-     * @return string
-     */
-    public static function baseUri()
-    {
-        return static::BASE_URI . 'v' . static::$version . '/';
-    }
-
-    /**
-     * Set and get the auth
-     * @param string|array $auth
-     * @return void|array
-     */
     public static function auth(...$auth)
     {
-        $count = count($auth);
-        if ($count === 0) {
-            if (static::$user === null) {
-                return static::$token;
-            }
-            return [
-                static::$user,
-                static::$token
-            ];
-        } elseif ($count === 1) {
-            list(static::$token) = $auth;
-        } else {
-            list(static::$user, static::$token) = $auth;
+        HttpApi::auth(...$auth);
+        HttpApi::version(static::VERSION);
+        HttpApi::baseUri(static::BASE_URI . 'v' . HttpApi::version() . '/');
+        HttpApi::createClient();
+    }
+
+    /**
+     * Dynamically handle calls to the class.
+     *
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    public static function __callStatic($method, $params)
+    {
+        if (!method_exists(HttpApi::class, $method)) {
+            throw new BadMethodCallException("Method {$method} does not exist.");
         }
+
+        return call_user_func_array([HttpApi::class, $method], $params);
     }
 }

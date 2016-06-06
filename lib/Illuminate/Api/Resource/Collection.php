@@ -1,6 +1,6 @@
 <?php
 
-namespace Alegra\Http\Eloquent;
+namespace Illuminate\Api\Resource;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as BaseCollection;
@@ -12,7 +12,7 @@ class Collection extends BaseCollection
      *
      * @param  mixed  $key
      * @param  mixed  $default
-     * @return \Alegra\Http\Eloquent\Model
+     * @return \Illuminate\Api\Resource\Model
      */
     public function find($key, $default = null)
     {
@@ -60,6 +60,18 @@ class Collection extends BaseCollection
         return parent::contains(function ($model) use ($key) {
             return $model->getKey() == $key;
         });
+    }
+
+    /**
+     * Get the array of primary keys.
+     *
+     * @return array
+     */
+    public function modelKeys()
+    {
+        return array_map(function ($model) {
+            return $model->getKey();
+        }, $this->items);
     }
 
     /**

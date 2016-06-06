@@ -1,6 +1,6 @@
 <?php
 
-namespace Alegra\Support;
+namespace Illuminate\Support\Traits;
 
 use Carbon\Carbon;
 use DateTimeInterface;

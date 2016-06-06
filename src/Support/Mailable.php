@@ -1,10 +1,8 @@
 <?php
 
-namespace Alegra\Http;
+namespace Alegra\Support;
 
-use BadMethodCallException;
 use Illuminate\Support\Arr;
-use Alegra\Http\Eloquent\Mail;
 
 /**
  * adds the ability to appeal to be sent by email
@@ -71,50 +69,5 @@ trait Mailable
     protected static function isResource($resource)
     {
         return $resource instanceof static;
-    }
-
-    /**
-     * Dynamically handle calls to the class.
-     *
-     * @param  string $method
-     * @param  array $params
-     * @return mixed
-     */
-    public static function __callStatic($method, $params)
-    {
-        return static::callMethod(static::class, $method, $params);
-    }
-
-    /**
-     * Dynamically handle calls to the class.
-     *
-     * @param  string $method
-     * @param  array $params
-     * @return mixed
-     */
-    public function __call($method, $params)
-    {
-        array_unshift($params, $this);
-
-        return static::callMethod($this, $method, $params);
-    }
-
-    /**
-     * Call a raw method
-     *
-     * @param  static|$this $objectOrClass
-     * @param  string $method
-     * @param  array $params
-     * @return mixed
-     */
-    private static function callMethod($objectOrClass, $method, $params)
-    {
-        $method .= 'Raw';
-
-        if (!method_exists($objectOrClass, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist.");
-        }
-
-        return call_user_func_array([$objectOrClass, $method], $params);
     }
 }

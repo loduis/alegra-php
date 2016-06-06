@@ -1,8 +1,7 @@
 <?php
 
-namespace Alegra\Tests\Http\Handler;
+namespace Illuminate\Api\Testing\Handlers;
 
-use Illuminate\Support\Fluent;
 use Illuminate\Support\Collection;
 
 class ArrayHandle

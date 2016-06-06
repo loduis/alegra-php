@@ -2,8 +2,8 @@
 
 namespace Alegra;
 
-use Alegra\Http\Resource;
-use Alegra\Http\Restable;
+use Illuminate\Api\Http\Resource;
+use Illuminate\Api\Http\Restable;
 
 class Item extends Resource
 {
@@ -21,14 +21,7 @@ class Item extends Resource
 
     public function setPriceAttribute($value)
     {
-        if (is_scalar($value)) {
-            $value = PriceList::make([
-                [
-                    'id' => 1,
-                    'price' => $value
-                ]
-            ]);
-        } elseif ($value instanceof Price) {
+        if (!$value instanceof PriceList) {
             $value = PriceList::make([$value]);
         }
 
