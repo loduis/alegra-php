@@ -18,5 +18,4 @@ class Quote extends Resource
      * @var string
      */
     protected static $path = 'estimates';
-
 }

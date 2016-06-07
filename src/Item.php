@@ -7,10 +7,14 @@ use Illuminate\Api\Http\Restable;
 
 class Item extends Resource
 {
+    protected static $casts = [
+        'id' => 'int'
+    ];
+
     /**
      * Transform attributes when receive the resource
      *
-     * @var [type]
+     * @var array
      */
     protected static $transforms = [
         'category' => Category::class,

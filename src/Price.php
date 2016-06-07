@@ -9,7 +9,7 @@ class Price extends Model
     protected $primaryKey = 'idPriceList';
 
     protected static $casts = [
-        'id' => 'int',
+        'idPriceList' => 'int',
         'price' => 'float'
     ];
 

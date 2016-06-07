@@ -17,23 +17,23 @@ abstract class TestCase extends ApiTestCase
 
     protected function setUp()
     {
-        static $register;
+        // If is live run over the alegra server
+        $mode = getenv('API_ENV');
+
+        if ($_SERVER['argc'] === 3) {
+            $mode = $_SERVER['argv'][2];
+        }
+
+        if ($mode !== 'live') {
+            $handler = new ApiHandler(__DIR__ . '/schemas');
+            Api::clientOptions([
+                'handler' => $handler
+            ]);
+        }
 
         $apiUser = getenv('API_USER');
         $apiKey = getenv('API_KEY');
         Api::auth($apiUser, $apiKey);
-
-        // If is live run over the alegra server
-        $mode = getenv('API_ENV');
-        if ($_SERVER['argc'] === 3) {
-            $mode = $_SERVER['argv'][2];
-        }
-        if ($mode !== 'live') {
-            $handler = new ApiHandler(__DIR__ . '/schemas');
-            Api::createClient([
-                'handler' => $handler
-            ]);
-        }
 
         $this->faker = Faker::create('es_ES');
     }

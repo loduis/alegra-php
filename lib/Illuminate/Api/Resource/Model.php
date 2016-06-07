@@ -252,7 +252,6 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         }
 
         return $attributes;
-
     }
 
     /**

@@ -8,11 +8,25 @@ use Illuminate\Api\Http\Api as HttpApi;
 class Api
 {
     /**
-     * The current version of api
+     * The current version of package
      *
      * @var int
      */
     const VERSION  = 1;
+
+    /**
+     * The current version of php bindings
+     *
+     * @var  string
+     */
+    const BINDING_VERSION = '0.9.0';
+
+    /**
+     * Custom options of http client
+     *
+     * @var array
+     */
+    private static $clientOptions = [];
 
     /**
      * The base path of api
@@ -25,23 +39,21 @@ class Api
     {
         HttpApi::auth(...$auth);
         HttpApi::version(static::VERSION);
-        HttpApi::baseUri(static::BASE_URI . 'v' . HttpApi::version() . '/');
-        HttpApi::createClient();
+        HttpApi::baseUri(static::BASE_URI . HttpApi::version() . '/');
+        $options = static::$clientOptions;
+        $options['headers']['User-Agent'] = 'Alegra/' . HttpApi::version() .
+                                            ' PhpBindings/' . static::BINDING_VERSION;
+        HttpApi::createClient($options);
     }
 
     /**
-     * Dynamically handle calls to the class.
+     * Set the custom options for create http client
      *
-     * @param  string $method
-     * @param  array $params
-     * @return mixed
+     * @param  array  $options
+     * @return void
      */
-    public static function __callStatic($method, $params)
+    public static function clientOptions(array $options)
     {
-        if (!method_exists(HttpApi::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist.");
-        }
-
-        return call_user_func_array([HttpApi::class, $method], $params);
+        static::$clientOptions = $options;
     }
 }

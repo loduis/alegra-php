@@ -64,7 +64,6 @@ class ApiHandler
                 return new RejectedPromise($reason);
             }
         );
-
     }
 
     private function invokeStats(

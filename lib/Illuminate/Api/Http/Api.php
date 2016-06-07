@@ -36,7 +36,7 @@ abstract class Api
     public static function version($number = null)
     {
         if ($number === null) {
-            return static::$version;
+            return 'v' . static::$version;
         }
 
         static::$version = (int) $number;
@@ -82,11 +82,11 @@ abstract class Api
     public static function createClient(array $options = [])
     {
         Client::create(array_merge(
+            $options,
             [
                 'base_uri' => static::baseUri(),
                 'auth'     => static::auth(),
-            ],
-            $options
+            ]
         ));
     }
 }

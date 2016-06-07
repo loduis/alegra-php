@@ -31,14 +31,10 @@ class Client
      */
     public static function create(array $options = [])
     {
-        $options = array_merge(
-            [
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ],
-            $options
-        );
+        if (!isset($options['headers']['Accept'])) {
+            $options['headers']['Content-Type'] =
+            $options['headers']['Accept']       = 'application/json';
+        }
 
         return static::$transport = new HttpClient($options);
     }

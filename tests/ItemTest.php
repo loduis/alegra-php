@@ -22,7 +22,8 @@ class ItemTest extends TestCase
         ]);
 
         $this->assertInstanceOf(Item::class, $item);
-        $this->assertNotNull($item->id);
+        $this->assertInternalType('int', $item->id);
+        $this->assertInternalType('string', $item->name);
 
         // Assert category attribute
         $this->assertInstanceOf(Category::class, $item->category);
@@ -39,5 +40,11 @@ class ItemTest extends TestCase
             $this->assertInternalType('string', $price->name);
             $this->assertInternalType('float', $price->price);
         });
+    }
+
+    public function testAll()
+    {
+        //$items = Item::all();
+        //print_r($items);
     }
 }
