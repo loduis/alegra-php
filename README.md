@@ -34,9 +34,25 @@ If you use Composer, these dependencies should be handled automatically. If you 
 
 Simple usage looks like:
 
+Your composer.json file
+```json
+{
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "loduis/alegra-php": "1.0.*"
+    }
+}
+```
+
+Your test.php script
 ```php
+require './vendor/autoload.php';
+
 \Alegra\Api::auth('Your user', 'Your api token');
+
 $myContact = ['name' => 'Your contact name'];
+
 $contact = \Alegra\Contact::create($myContact); // Create the contact
 $contact->identification = '900.123.123-8';
 $contact->save(); // Update the contact
@@ -45,6 +61,7 @@ $contact->delete(); // Delete the contact
 // Fetch an existing contact
 $contact = Contact::fetch(1);
 $contact->email = 'email@server.com';
+$contact->save()
 ```
 
 ## Documentation
