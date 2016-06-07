@@ -3,8 +3,7 @@
 namespace Alegra\Tests;
 
 use Alegra\Contact;
-use Illuminate\Support\Fluent;
-use Illuminate\Support\Collection;
+use Illuminate\Api\Resource\Collection;
 
 class ContactTest extends TestCase
 {

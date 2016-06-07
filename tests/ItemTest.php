@@ -6,6 +6,7 @@ use Alegra\Item;
 use Alegra\Price;
 use Alegra\Category;
 use Alegra\PriceList;
+use Illuminate\Api\Resource\Collection;
 
 class ItemTest extends TestCase
 {
@@ -44,7 +45,11 @@ class ItemTest extends TestCase
 
     public function testAll()
     {
-        //$items = Item::all();
-        //print_r($items);
+        $items = Item::all();
+        $items->each(function ($item) {
+            $this->assertInstanceOf(Item::class, $item);
+            $this->assertNotNull($item->id);
+        });
+        $this->assertInstanceOf(Collection::class, $items);
     }
 }
