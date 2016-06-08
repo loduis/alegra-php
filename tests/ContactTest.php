@@ -38,13 +38,13 @@ class ContactTest extends TestCase
         $this->assertNotNull($contact->id);
     }
 
-    public function testFetch()
+    public function testGet()
     {
         $contact = new Contact([
             'name' => 'Prueba'
         ]);
         $contact->save();
-        $createdContact = Contact::fetch($contact->id);
+        $createdContact = Contact::get($contact->id);
         $this->assertSame('Prueba', $createdContact->name);
     }
 

@@ -7,25 +7,25 @@ use GuzzleHttp\Exception\ClientException;
 
 class CompanyTest extends TestCase
 {
-    public function itestResolvePath()
+    public function testResolvePath()
     {
         $this->assertEquals('company', Company::resolvePath());
     }
 
-    public function itestFetch()
+    public function testGet()
     {
-        $company = Company::fetch();
+        $company = Company::get();
         $this->assertArrayHasKey('name', $company);
         $this->assertArrayHasKey('identification', $company);
         $this->assertInstanceOf(Company::class, $company);
     }
 
-    public function itestAll()
+    public function testAll()
     {
         $this->assertPrivate(Company::class, 'all');
     }
 
-    public function itestDelete()
+    public function testDelete()
     {
         $this->assertPrivate(Company::class, 'delete');
     }
@@ -33,7 +33,7 @@ class CompanyTest extends TestCase
     public function testSave()
     {
         $company = new Company;
-        $name = Company::fetch()->name;
+        $name = Company::get()->name;
         $company->name = $this->faker->name;
         $company->address = [
             'address' => 'Cambia la dir',
@@ -48,9 +48,9 @@ class CompanyTest extends TestCase
      *
      * @return void
      */
-    public function itestSaveFullResource()
+    public function testSaveFullResource()
     {
-        $company = Company::fetch();
+        $company = Company::get();
         $company->name = $this->faker->name;
         $company->save();
     }

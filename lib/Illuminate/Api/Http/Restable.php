@@ -33,12 +33,12 @@ trait Restable
     }
 
     /**
-     * Fetch the resource by id
+     * Get the resource by id
      *
      * @param  int|string $id
      * @return static
      */
-    public static function fetch($id)
+    public static function get($id)
     {
         if (!$id) {
             throw new UnexpectedValueException('The id parameter is required.');

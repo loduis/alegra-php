@@ -61,8 +61,8 @@ $contact->identification = '900.123.123-8';
 $contact->save(); // Update the contact
 $contact->delete(); // Delete the contact
 
-// Fetch an existing contact
-$contact = Contact::fetch(1); // where 1 is the id of resource.
+// Get an existing contact
+$contact = Contact::get(1); // where 1 is the id of resource.
 $contact->email = 'email@server.com';
 $contact->save()
 ```

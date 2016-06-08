@@ -15,11 +15,11 @@ class Company extends Resource
     protected static $path = 'company';
 
     /**
-     * Fetch the company resource
+     * Get the company resource
      *
      * @return static
      */
-    public static function fetch()
+    public static function get()
     {
         return static::createFromRequest('GET');
     }
