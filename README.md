@@ -47,19 +47,22 @@ Your composer.json file
 
 Your test.php script
 ```php
+use Alegra\Api
+use Alegra\Contact
+
 require './vendor/autoload.php';
 
-\Alegra\Api::auth('Your user', 'Your api token');
+Api::auth('Your user', 'Your api token');
 
 $myContact = ['name' => 'Your contact name'];
 
-$contact = \Alegra\Contact::create($myContact); // Create the contact
+$contact = Contact::create($myContact); // Create the contact
 $contact->identification = '900.123.123-8';
 $contact->save(); // Update the contact
 $contact->delete(); // Delete the contact
 
 // Fetch an existing contact
-$contact = Contact::fetch(1);
+$contact = Contact::fetch(1); // where 1 is the id of resource.
 $contact->email = 'email@server.com';
 $contact->save()
 ```
