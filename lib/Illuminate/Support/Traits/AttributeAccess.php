@@ -5,14 +5,24 @@ namespace Illuminate\Support\Traits;
 trait AttributeAccess
 {
     /**
-     * Get all of the current attributes on the model.
+     * The container's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [];
+
+    /**
+     * Get all of the current attributes.
      *
      * @return array
      */
-    abstract public function getAttributes();
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
 
     /**
-     * Set a given attribute on the model.
+     * Set a given attribute on the container.
      *
      * @param  string  $key
      * @param  mixed  $value
@@ -21,7 +31,7 @@ trait AttributeAccess
     abstract public function setAttribute($key, $value);
 
     /**
-     * Get an attribute from the model.
+     * Get an attribute from the container.
      *
      * @param  string  $key
      * @return mixed
@@ -29,7 +39,18 @@ trait AttributeAccess
     abstract public function getAttribute($key);
 
     /**
-     * Dynamically retrieve attributes on the model.
+     * Determine if an attribute exists on the container.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasAttribute($key)
+    {
+        return $this->getAttribute($key) !== null;
+    }
+
+    /**
+     * Dynamically retrieve attributes on the container.
      *
      * @param  string  $key
      * @return mixed
@@ -40,7 +61,7 @@ trait AttributeAccess
     }
 
     /**
-     * Dynamically set attributes on the model.
+     * Dynamically set attributes on the container.
      *
      * @param  string  $key
      * @param  mixed  $value
@@ -52,18 +73,18 @@ trait AttributeAccess
     }
 
     /**
-     * Determine if an attribute or relation exists on the model.
+     * Determine if an attribute exists on the container.
      *
      * @param  string  $key
      * @return bool
      */
     public function __isset($key)
     {
-        return $this->getAttribute($key) !== null;
+        return $this->hasAttribute($key);
     }
 
     /**
-     * Unset an attribute on the model.
+     * Unset an attribute on the container.
      *
      * @param  string  $key
      * @return void

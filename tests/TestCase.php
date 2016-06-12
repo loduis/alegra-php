@@ -4,7 +4,10 @@ namespace Alegra\Tests;
 
 use Alegra\Api;
 use Faker\Factory as Faker;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Api\Testing\ApiHandler;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Illuminate\Api\Testing\TestCase as ApiTestCase;
 
 /**
@@ -17,6 +20,7 @@ abstract class TestCase extends ApiTestCase
 
     protected function setUp()
     {
+        static $handler;
         // If is live run over the alegra server
         $mode = getenv('API_ENV');
 
@@ -25,7 +29,34 @@ abstract class TestCase extends ApiTestCase
         }
 
         if ($mode !== 'live') {
-            $handler = new ApiHandler(__DIR__ . '/schemas');
+            if (!$handler) {
+                $handler = (new ApiHandler(__DIR__ . '/schemas'))
+                    ->request('POST /items', function (RequestInterface $request, $options) {
+                        $price = array_get($options['json'], 'price');
+                        $name = array_get($options['json'], 'name');
+                        if (is_null($price) || is_numeric($name)) {
+                            return $this->createError(400, $request);
+                        }
+                    })
+                    ->request('GET /taxes', function (RequestInterface $request) {
+                        return $this->createResponse(200, [
+                              [
+                                'id' => 1,
+                                'name' => 'IVA',
+                                'percentage' => '5.00',
+                                'description' => '',
+                                'type' => 'IVA',
+                              ],
+                              [
+                                'id' => 2,
+                                'name' => 'IVA',
+                                'percentage' => '5.00',
+                                'description' => '',
+                                'type' => 'IVA',
+                              ],
+                        ]);
+                    });
+            }
             Api::clientOptions([
                 'handler' => $handler
             ]);

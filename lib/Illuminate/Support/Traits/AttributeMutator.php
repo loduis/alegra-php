@@ -14,6 +14,26 @@ trait AttributeMutator
      */
     protected static $mutatorCache = [];
 
+    protected function mutateAttributes(array &$attributes)
+    {
+        $mutatedAttributes = $this->getMutatedAttributes();
+
+        // We want to spin through all the mutated attributes for this model and call
+        // the mutator for the attribute. We cache off every mutated attributes so
+        // we don't have to constantly check on attributes that actually change.
+        foreach ($mutatedAttributes as $key) {
+            if (! array_key_exists($key, $attributes)) {
+                continue;
+            }
+            $attributes[$key] = $this->mutateAttributeForArray(
+                $key,
+                $attributes[$key]
+            );
+        }
+
+        return $mutatedAttributes;
+    }
+
     /**
      * Determine if a get mutator exists for an attribute.
      *

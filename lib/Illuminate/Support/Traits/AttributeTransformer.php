@@ -2,6 +2,8 @@
 
 namespace Illuminate\Support\Traits;
 
+use Illuminate\Support\Str;
+
 trait AttributeTransformer
 {
 
@@ -12,7 +14,7 @@ trait AttributeTransformer
      */
     public function getTransformers()
     {
-        return property_exists(static::class, 'transforms') ? static::$transforms : [];
+        return static::getStaticProperty('transforms', []);
     }
 
     /**
@@ -52,9 +54,20 @@ trait AttributeTransformer
             $transformer = $transformer->bindTo($this);
             return $transformer($value, $key);
         }
+        if (Str::endsWith($transformer, '[]')) { // this is an colllection of transformed
+            $collectionClass = $this->getCollectionTransformerHandler();
+            if (!$value instanceof $collectionClass) {
+                $className = str_replace('[]', '', $transformer);
+                $value = $collectionClass::makeOfClass($className, $value);
+            }
+        } elseif (!$value instanceof $transformer) {
+            $value = new $transformer($value);
+        }
 
-        $this->attributes[$key] = new $transformer($value);
+        $this->attributes[$key] = $value;
 
         return $this;
     }
+
+    abstract protected function getCollectionTransformerHandler();
 }

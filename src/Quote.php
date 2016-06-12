@@ -2,15 +2,12 @@
 
 namespace Alegra;
 
-use Illuminate\Api\Http\Resource;
-use Illuminate\Api\Http\Restable;
-
 /**
  * Class for manage quotes
  */
 class Quote extends Resource
 {
-    use Restable;
+    use \Illuminate\Api\Http\Restable;
 
     /**
      * Resource path

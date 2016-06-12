@@ -3,6 +3,7 @@
 use Mockery as m;
 use Alegra\Tests\TestCase;
 use Illuminate\Api\Resource\Model;
+use Illuminate\Api\Resource\Collection;
 
 class ApiResourceModelTest extends TestCase
 {
@@ -227,6 +228,47 @@ class ApiResourceModelTest extends TestCase
         $this->assertNull($array['datetimeAttribute']);
         $this->assertNull($array['timestampAttribute']);
     }
+
+    public function testTransforms()
+    {
+        $model = new ResourceModelTransformStub();
+        $model->date = date('Y-m-d');
+        $model->contact = [
+            'id' => 1,
+            'name' => 'Test',
+            'type' => 'client'
+        ];
+
+        $model->items = [
+            new Model([
+                'id' => 1,
+                'price' => 5
+            ]),
+            new Model([
+                'id' => 1,
+                'price' => 5
+            ])
+        ];
+
+        $this->assertInstanceOf(ResourceModelVisibleStub::class, $model->contact);
+        $this->assertInstanceOf(Collection::class, $model->items);
+
+        $contact = new ResourceModelVisibleStub([
+            'id' => 1,
+            'name' => 'Test',
+            'type' => 'client'
+        ]);
+
+        $array = $contact->toArray();
+        $this->assertArrayHasKey('id', $array);
+        $this->assertArrayHasKey('name', $array);
+        $this->assertArrayHasKey('type', $array);
+
+        $array = $model->toArray()['contact'];
+        $this->assertArrayHasKey('id', $array);
+        $this->assertArrayNotHasKey('name', $array);
+        $this->assertArrayHasKey('type', $array);
+    }
 }
 
 class ResourceModelStub extends Model
@@ -308,4 +350,20 @@ class ResourceModelCastingStub extends Model
     {
         return $this->attributes['jsonAttribute'];
     }
+}
+
+class ResourceModelTransformStub extends Model
+{
+    protected static $transforms = [
+        'contact' => ResourceModelVisibleStub::class,
+        'items' => Collection::class
+    ];
+}
+
+
+class ResourceModelVisibleStub extends Model
+{
+    protected static $visible = [
+        'type'
+    ];
 }

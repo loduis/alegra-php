@@ -2,6 +2,7 @@
 
 namespace Alegra\Tests;
 
+use Alegra\Tax;
 use Alegra\Item;
 use Alegra\Price;
 use Alegra\Category;
@@ -43,13 +44,66 @@ class ItemTest extends TestCase
         });
     }
 
+    /**
+     * @expectedException     \GuzzleHttp\Exception\ClientException
+     * @expectedExceptionCode 400
+     */
+    public function testSaveFailWhenNotPriceIsSet()
+    {
+        $item = new Item;
+        $item->name = $this->faker('name');
+        $item->save();
+    }
+
+    /**
+     * @expectedException     \GuzzleHttp\Exception\ClientException
+     * @expectedExceptionCode 400
+     */
+    public function testSaveFailWhenRequestIsEmpty()
+    {
+        $item = new Item;
+        $item->save();
+    }
+
+    public function itestSaveWithTax()
+    {
+        $item = new Item;
+        $item->name = $this->faker('name');
+        $item->price = 5;
+        $item->tax = 1;
+        $item->save();
+        $this->assertInstanceOf(PriceList::class, $item->price);
+        $this->assertInstanceOf(Collection::class, $item->tax);
+
+        $item->tax->each(function ($tax) {
+            $this->assertInstanceOf(Tax::class, $tax);
+            $this->assertInternalType('int', $tax->id);
+        });
+    }
+
     public function testAll()
     {
         $items = Item::all();
+        $this->assertGreaterThanOrEqual(1, count($items));
         $items->each(function ($item) {
             $this->assertInstanceOf(Item::class, $item);
-            $this->assertNotNull($item->id);
+            $this->assertInternalType('int', $item->id);
+            $this->assertInstanceOf(PriceList::class, $item->price);
         });
         $this->assertInstanceOf(Collection::class, $items);
+    }
+
+    public function testGet()
+    {
+        $item   = Item::create(['name' => $name = $this->faker('name'), 'price' => 10]);
+        $createdItem = Item::get($item->id);
+        $this->assertSame($name, $createdItem->name);
+    }
+
+    public function testDelete()
+    {
+        $item   = Item::create(['name' => $this->faker('name'), 'price' => 10]);
+        $item->delete();
+        $this->assertSame(null, $item->id);
     }
 }

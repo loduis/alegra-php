@@ -2,10 +2,24 @@
 
 namespace Alegra;
 
-use Illuminate\Api\Http\Resource;
-use Illuminate\Api\Http\Restable;
-
 class Contact extends Resource
 {
-    use Restable;
+    const TYPE_CUSTOMER = 'client';
+
+    const TYPE_SUPPLIER = 'provider';
+
+    protected static $path = 'contacts';
+
+    use \Illuminate\Api\Http\Restable;
+
+    public function setTypeAttribute($value)
+    {
+        $value = array_values((array) $value);
+        if (!($type = $this->getAttribute('type'))) {
+            $this->attributes['type'] = $value;
+        } else {
+            $type = array_values((array) $type);
+            $this->attributes['type'] = array_unique(array_merge($type, $value));
+        }
+    }
 }

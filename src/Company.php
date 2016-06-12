@@ -2,12 +2,9 @@
 
 namespace Alegra;
 
-use Illuminate\Api\Http\Resource;
-use Illuminate\Api\Http\Restable;
-
 class Company extends Resource
 {
-    use Restable {
+    use \Illuminate\Api\Http\Restable {
         all as private;
         delete as private;
     }

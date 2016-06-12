@@ -9,6 +9,30 @@ use Illuminate\Support\Collection as BaseCollection;
 trait AttributeCastable
 {
 
+    protected function castAttributes(array &$attributes, array $mutatedAttributes = [])
+    {
+        // Next we will handle any casts that have been setup for this model and cast
+        // the values to their appropriate type. If the attribute has a mutator we
+        // will not perform the cast on those attributes to avoid any confusion.
+        foreach ($this->getCasts() as $key => $value) {
+            if (! array_key_exists($key, $attributes) ||
+                in_array($key, $mutatedAttributes)) {
+                continue;
+            }
+
+            $attributes[$key] = $this->castAttribute(
+                $key,
+                $attributes[$key]
+            );
+
+            if ($attributes[$key] && ($value === 'date' || $value === 'datetime')) {
+                $attributes[$key] = $this->serializeDate($attributes[$key]);
+            }
+        }
+
+        return $attributes;
+    }
+
     /**
      * Get the casts array.
      *
@@ -16,7 +40,10 @@ trait AttributeCastable
      */
     public function getCasts()
     {
-        return property_exists(static::class, 'casts') ? static::$casts : [];
+        $casts = static::getStaticProperty('casts', []);
+        $casts[$this->getKeyName()] = static::$castKey;
+
+        return $casts;
     }
 
     /**
@@ -196,4 +223,12 @@ trait AttributeCastable
      * @return string
      */
     abstract protected function getDateFormat();
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    abstract protected function serializeDate(DateTimeInterface $date);
 }

@@ -10,6 +10,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Traits\AttributeAccess;
 use Illuminate\Support\Traits\AttributeMutator;
 use Illuminate\Support\Traits\AttributeCastable;
+use Illuminate\Support\Traits\AttributeSerialize;
 use Illuminate\Support\Traits\AttributeTransformer;
 
 class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
@@ -29,19 +30,18 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     protected $primaryKey = 'id';
 
     /**
+     * The cast key type
+     *
+     * @var string
+     */
+    protected static $castKey = 'int';
+
+    /**
      * The storage format of the model's date columns.
      *
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s';
-
-    /**
-     * The model's attributes.
-     *
-     * @var array
-     */
-    protected $attributes = [];
-
 
     /**
      * Add ability for access attributes
@@ -64,6 +64,11 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     use AttributeTransformer;
 
     /**
+     * Add ability for convert to json
+     */
+    use AttributeSerialize;
+
+    /**
      * Create a new Eloquent model instance.
      *
      * @param  array  $attributes
@@ -71,9 +76,18 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      */
     public function __construct(array $attributes = [])
     {
+        $this->fill($attributes);
+    }
+
+    public function fill(array $attributes)
+    {
+        $this->attributes = [];
+
         foreach ($attributes as $key => $value) {
             $this->setAttribute($key, $value);
         }
+
+        return $this;
     }
 
     /**
@@ -123,16 +137,6 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Get all of the current attributes on the model.
-     *
-     * @return array
-     */
-    public function getAttributes()
-    {
-        return $this->attributes;
-    }
-
-    /**
      * Convert the model's attributes to an array.
      *
      * @return array
@@ -141,42 +145,14 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     {
         $attributes = $this->getArrayableAttributes();
 
-        $mutatedAttributes = $this->getMutatedAttributes();
+        return $this->attributesToArray($attributes);
+    }
 
-        // We want to spin through all the mutated attributes for this model and call
-        // the mutator for the attribute. We cache off every mutated attributes so
-        // we don't have to constantly check on attributes that actually change.
-        foreach ($mutatedAttributes as $key) {
-            if (! array_key_exists($key, $attributes)) {
-                continue;
-            }
-            $attributes[$key] = $this->mutateAttributeForArray(
-                $key,
-                $attributes[$key]
-            );
-        }
+    public function toArrayVisible()
+    {
+        $attributes = $this->getArrayableVisibleAttributes();
 
-        // Next we will handle any casts that have been setup for this model and cast
-        // the values to their appropriate type. If the attribute has a mutator we
-        // will not perform the cast on those attributes to avoid any confusion.
-        foreach ($this->getCasts() as $key => $value) {
-            if (! array_key_exists($key, $attributes) ||
-                in_array($key, $mutatedAttributes)) {
-                continue;
-            }
-
-            $attributes[$key] = $this->castAttribute(
-                $key,
-                $attributes[$key]
-            );
-
-            if ($attributes[$key] && ($value === 'date' || $value === 'datetime')) {
-                $attributes[$key] = $this->serializeDate($attributes[$key]);
-            }
-        }
-
-
-        return $attributes;
+        return $this->attributesToArray($attributes);
     }
 
     /**
@@ -233,25 +209,55 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     }
 
     /**
+     * Convert the model's attributes to an array.
+     *
+     * @return array
+     */
+    protected function attributesToArray($values)
+    {
+        $attributes = [];
+
+        foreach ($values as $key => $value) {
+            // If the values implements the Arrayable interface we can just call this
+            // toArray method on the instances which will convert both models and
+            // collections to their proper array form and we'll set the values.
+            if ($value instanceof Collection) {
+                $value = $value->allVisible();
+            } elseif ($value instanceof self) {
+                $value = $value->toArrayVisible();
+            } elseif ($value instanceof Arrayable) {
+                $value = $value->toArray();
+            }
+            $attributes[$key] = $value;
+        }
+
+        $mutatedAttributes = $this->mutateAttributes($attributes);
+
+        return $this->castAttributes($attributes, $mutatedAttributes);
+    }
+
+    /**
      * Get an attribute array of all arrayable attributes.
      *
      * @return array
      */
     protected function getArrayableAttributes()
     {
-        $attributes = [];
+        return $this->attributes;
+    }
 
-        foreach ($this->attributes as $key => $value) {
-            // If the values implements the Arrayable interface we can just call this
-            // toArray method on the instances which will convert both models and
-            // collections to their proper array form and we'll set the values.
-            if ($value instanceof Arrayable) {
-                $value = $value->toArray();
-            }
-            $attributes[$key] = $value;
-        }
+    /**
+     * Get an attribute array of all arrayable values.
+     *
+     * @return array
+     */
+    protected function getArrayableVisibleAttributes()
+    {
+        $visible   = static::getStaticProperty('visible', []);
+        $visible[] = $this->primaryKey;
+        $visible   = array_unique($visible);
 
-        return $attributes;
+        return array_intersect_key($this->getArrayableAttributes(), array_flip($visible));
     }
 
     /**
@@ -268,9 +274,13 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         // the model, such as "json_encoding" an listing of data for storage.
         if ($this->hasTransformer($key)) {
             return $this->transformAttribute($key, $value);
-        } elseif ($this->hasSetMutator($key)) {
+        }
+
+        if ($this->hasSetMutator($key)) {
             return $this->mutatingAttribute($key, $value);
-        } elseif ($value && $this->isDateCastable($key)) {
+        }
+
+        if ($value && $this->isDateCastable($key)) {
             // If an attribute is listed as a "date", we'll convert it from a DateTime
             // instance into a form proper for storage on the database tables using
             // the connection grammar's date format. We will auto set the values.
@@ -299,37 +309,6 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         $value = $this->asDateTime($value);
 
         return $value->format($format);
-    }
-
-    /**
-     * Convert the model instance to JSON.
-     *
-     * @param  int  $options
-     * @return string
-     */
-    public function toJson($options = JSON_PRETTY_PRINT)
-    {
-        return json_encode($this->jsonSerialize(), $options);
-    }
-
-    /**
-     * Convert the object into something JSON serializable.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Convert the model to its string representation.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->toJson();
     }
 
     /**
@@ -364,5 +343,15 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     protected function getDateFormat()
     {
         return $this->dateFormat;
+    }
+
+    protected static function getStaticProperty($name, $default = null)
+    {
+        return property_exists(static::class, $name) ? static::$$name : $default;
+    }
+
+    protected function getCollectionTransformerHandler()
+    {
+        return Collection::class;
     }
 }

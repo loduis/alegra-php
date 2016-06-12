@@ -7,6 +7,25 @@ use Illuminate\Support\Collection as BaseCollection;
 
 class Collection extends BaseCollection
 {
+
+    /**
+     * Create a new collection instance if the value isn't one already.
+     *
+     * @param  mixed  $items
+     * @return static
+     */
+    public static function makeOfClass($type, $items)
+    {
+        $items = (array) $items;
+        foreach ($items as $index => $item) {
+            if (!$item instanceof $type) {
+                $items[$index] = new $type($item);
+            }
+        }
+
+        return new static($items);
+    }
+
     /**
      * Find a model in the collection by key.
      *
@@ -269,5 +288,25 @@ class Collection extends BaseCollection
     public function toBase()
     {
         return new BaseCollection($this->items);
+    }
+
+    /**
+     * Get all of the items in the collection.
+     *
+     * @return array
+     */
+    public function allVisible()
+    {
+        $items = [];
+
+        foreach ($this->items as $item) {
+            if ($item instanceof Model) {
+                $items[] = $item->toArrayVisible();
+            } else {
+                $items[] = $item;
+            }
+        }
+
+        return $items;
     }
 }

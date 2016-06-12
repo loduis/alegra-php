@@ -63,7 +63,7 @@ abstract class Resource extends Model
     {
         $attributes = static::requestJson($method, $id, $this);
 
-        return $this->mergeAttributes($attributes);
+        return $this->fill($attributes);
     }
 
     /**
@@ -111,8 +111,8 @@ abstract class Resource extends Model
             return $path;
         }
 
-        if (static::propertyExists('path')) {
-            return $resolved[$class] = static::$path;
+        if ($path = static::getStaticProperty('path')) {
+            return $resolved[$class] = $path;
         }
 
         // Useful for namespaces: Foo\Charge
@@ -136,19 +136,6 @@ abstract class Resource extends Model
     protected static function propertyExists($property)
     {
         return property_exists(static::class, $property);
-    }
-
-    /**
-     * Combine attributes in the current resource object
-     *
-     * @param  array $attributes
-     * @return void
-     */
-    protected function mergeAttributes($attributes)
-    {
-        $this->attributes = array_merge($this->toArray(), $attributes);
-
-        return $this;
     }
 
     /**

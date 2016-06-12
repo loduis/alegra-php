@@ -9,6 +9,7 @@ use GuzzleHttp\TransferStats;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Api\Testing\Handlers\FileHandle;
 use Illuminate\Api\Testing\Handlers\ArrayHandle;
 use Illuminate\Api\Testing\Handlers\CallableHandle;
@@ -37,14 +38,35 @@ class ApiHandler
     {
         list($method, $path) = $this->prepareRequest($request, $options);
         $this->originalResource = [];
+        $response = null;
         if (($handler = $this->requestCallable->find($method, $path))) {
+            $handler = $handler->bindTo($this);
             $response = $handler($request, $options);
-        } else {
+        }
+
+        if ((!$response instanceof ResponseInterface) && (!$response instanceof \Exception)) {
             $method = Str::lower($method);
 
             $response = $this->$method($path, $options);
         }
 
+        return $this->handler($method, $path, $response, $request, $options);
+    }
+
+    private function invokeStats(
+        RequestInterface $request,
+        array $options,
+        ResponseInterface $response = null,
+        $reason = null
+    ) {
+        if (isset($options['on_stats'])) {
+            $stats = new TransferStats($request, $response, 0, $reason);
+            call_user_func($options['on_stats'], $stats);
+        }
+    }
+
+    private function handler($method, $path, $response, $request, $options)
+    {
         $response = $response instanceof \Exception
             ? new RejectedPromise($response)
             : \GuzzleHttp\Promise\promise_for($response);
@@ -64,18 +86,6 @@ class ApiHandler
                 return new RejectedPromise($reason);
             }
         );
-    }
-
-    private function invokeStats(
-        RequestInterface $request,
-        array $options,
-        ResponseInterface $response = null,
-        $reason = null
-    ) {
-        if (isset($options['on_stats'])) {
-            $stats = new TransferStats($request, $response, 0, $reason);
-            call_user_func($options['on_stats'], $stats);
-        }
     }
 
 
@@ -112,7 +122,7 @@ class ApiHandler
      * @param  array $options
      * @return \GuzzleHttp\Psr7\Response
      */
-    protected function get($path)
+    protected function get($path, $options)
     {
         list($path, $id) = static::parsePath($path);
 
@@ -122,6 +132,8 @@ class ApiHandler
             $resources = $this->first($resources, $id);
         } elseif (!count($resources) && ($resource = $this->files->fetch($path))) {
             $this->collections->put($path, $resources = $resource);
+        } elseif ($options['query']) {
+            $resources = $this->filterApply($resources, $options['query']);
         }
 
         $status = count($resources) > 0 ? 200 : 404;
@@ -166,6 +178,7 @@ class ApiHandler
             if ($resource = $this->first($resources, $id)) {
                 $this->originalResource = $resource;
                 $resources->put($id, $this->merge($resource, $options));
+                $resources = $resources->get($id);
             } else {
                 $status = 404;
             }
@@ -257,8 +270,41 @@ class ApiHandler
         }
     }
 
-    private function createResponse($status, $resource)
+    private function filterApply($resources, $filters)
+    {
+        foreach ($filters as $key => $value) {
+            $resources = $this->filter($resources, $key, $value);
+        }
+
+        return $resources->values();
+    }
+
+    private function filter($resources, $searchKey, $searchValue)
+    {
+        return $resources->filter(function ($value) use ($searchKey, $searchValue) {
+            if (array_key_exists($searchKey, $value)) {
+                $value = $value[$searchKey];
+                if (is_scalar($value)) {
+                    return $value == $searchValue;
+                }
+                return in_array($searchValue, (array) $value);
+            }
+        });
+    }
+
+    public function createResponse($status, $resource)
     {
         return new Response($status, ['Content-Type' => 'application/json'], json_encode($resource, JSON_PRETTY_PRINT));
+    }
+
+    public function createError($code, $request, $message = null)
+    {
+        if (is_array($message)) {
+            $message = json_encode($message);
+        }
+        return RequestException::create(
+            $request,
+            new Response($code, ['Content-Type' => 'application/json'], $message)
+        );
     }
 }
