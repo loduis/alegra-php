@@ -4,9 +4,9 @@ namespace Alegra\Tests;
 
 use Alegra\Tax;
 use Alegra\Item;
-use Alegra\Price;
 use Alegra\Category;
-use Alegra\PriceList;
+use Alegra\Item\Price;
+use Alegra\Item\Inventory;
 use Illuminate\Api\Resource\Collection;
 
 class ItemTest extends TestCase
@@ -33,7 +33,7 @@ class ItemTest extends TestCase
         $this->assertInternalType('string', $item->category->name);
 
         // Assert price attribute
-        $this->assertInstanceOf(PriceList::class, $item->price);
+        $this->assertInstanceOf(Collection::class, $item->price);
         $this->assertGreaterThanOrEqual(1, count($item->price));
         $item->price->each(function ($price) {
             $this->assertInstanceOf(Price::class, $price);
@@ -65,20 +65,62 @@ class ItemTest extends TestCase
         $item->save();
     }
 
-    public function itestSaveWithTax()
+    public function testSaveWithTaxAttribute()
     {
         $item = new Item;
         $item->name = $this->faker('name');
         $item->price = 5;
-        $item->tax = 1;
+        $item->tax = Tax::first();
         $item->save();
-        $this->assertInstanceOf(PriceList::class, $item->price);
+        $this->assertInstanceOf(Collection::class, $item->price);
         $this->assertInstanceOf(Collection::class, $item->tax);
 
         $item->tax->each(function ($tax) {
             $this->assertInstanceOf(Tax::class, $tax);
             $this->assertInternalType('int', $tax->id);
         });
+    }
+
+    public function testSaveWithInventoryAttribute()
+    {
+        $item = new Item;
+        $item->name = $this->faker('name');
+        $item->price = 30;
+        $item->inventory = [
+            'unit' => 'centimeter',
+            'cost' => 100,
+            'initial' => 20
+        ];
+        $this->assertInstanceOf(Inventory::class, $item->inventory);
+        $this->assertInternalType('float', $item->inventory->cost);
+        $item->save();
+
+        // Using chaining
+
+        $item = new Item;
+        $item->name = $this->faker('name');
+        $item->price = 50;
+
+        $item->inventory->unit = 'centimeter';
+        $item->inventory->cost = 200;
+        $item->inventory->initial = 5;
+        $item->save();
+        $this->assertInstanceOf(Inventory::class, $item->inventory);
+        $this->assertInternalType('float', $item->inventory->cost);
+
+        // Using full attributes
+
+        $item = new Item;
+        $item->name = $this->faker('name');
+        $item->price = 50;
+
+        $item->inventory->unit = 'centimeter';
+        $item->inventory->unitCost = 200;
+        $item->inventory->initialQuantity = 5;
+        $item->save();
+        $this->assertInstanceOf(Inventory::class, $item->inventory);
+        $this->assertInternalType('float', $item->inventory->initialQuantity);
+
     }
 
     public function testAll()
@@ -88,7 +130,7 @@ class ItemTest extends TestCase
         $items->each(function ($item) {
             $this->assertInstanceOf(Item::class, $item);
             $this->assertInternalType('int', $item->id);
-            $this->assertInstanceOf(PriceList::class, $item->price);
+            $this->assertInstanceOf(Collection::class, $item->price);
         });
         $this->assertInstanceOf(Collection::class, $items);
     }

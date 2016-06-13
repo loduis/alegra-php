@@ -1,10 +1,10 @@
 <?php
 
-namespace Alegra\Support;
+namespace Alegra\Contact;
 
 use DomainException;
 
-trait ContactTypeable
+trait Typeable
 {
     public function __construct($attributes = [])
     {

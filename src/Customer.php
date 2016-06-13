@@ -6,5 +6,5 @@ class Customer extends Contact
 {
     const TYPE = self::TYPE_CUSTOMER;
 
-    use Support\ContactTypeable;
+    use Contact\Typeable;
 }

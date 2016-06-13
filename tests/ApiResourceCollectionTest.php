@@ -197,6 +197,7 @@ class ApiResourceCollectionTest extends TestCase
 
         $this->assertEquals(new Collection([$one]), $c->only(1));
         $this->assertEquals(new Collection([$two, $three]), $c->only([2, 3]));
+        $this->assertEquals(new Collection([$two, $three]), $c->only(2, 3));
     }
 
     public function testExceptReturnsCollectionWithoutGivenModelKeys()
@@ -214,6 +215,7 @@ class ApiResourceCollectionTest extends TestCase
 
         $this->assertEquals(new Collection([$one, $three]), $c->except(2));
         $this->assertEquals(new Collection([$one]), $c->except([2, 3]));
+        $this->assertEquals(new Collection([$one]), $c->except(2, 3));
     }
 
     public function testNonModelRelatedMethods()

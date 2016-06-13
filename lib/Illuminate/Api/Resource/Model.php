@@ -148,6 +148,11 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         return $this->attributesToArray($attributes);
     }
 
+    /**
+     * Export visible attributes that are used in the transform process
+     *
+     * @return array
+     */
     public function toArrayVisible()
     {
         $attributes = $this->getArrayableVisibleAttributes();
@@ -163,20 +168,15 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      */
     public function getAttribute($key)
     {
-        if (array_key_exists($key, $this->attributes) || $this->hasGetMutator($key)) {
-            return $this->getAttributeValue($key);
-        }
-    }
-
-    /**
-     * Get a plain attribute (not a relationship).
-     *
-     * @param  string  $key
-     * @return mixed
-     */
-    public function getAttributeValue($key)
-    {
         $value = $this->getAttributeFromArray($key);
+
+        // If the attribute has a transform, we will call that then return what
+        // it returns the value, which is useful for transforming values
+        // from plain types to Model type.
+        // If value is null, this method create of base type
+        if ($this->hasTransformer($key) && $value === null) {
+            return $this->transformAttribute($key, [])->getAttributes()[$key];
+        }
 
         // If the attribute has a get mutator, we will call that then return what
         // it returns as the value, which is useful for transforming values on
@@ -345,11 +345,23 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         return $this->dateFormat;
     }
 
+    /**
+     * Get a static property from Model or $defualt if not exists
+     *
+     * @param  string $name
+     * @param  mixed $default
+     * @return mixed
+     */
     protected static function getStaticProperty($name, $default = null)
     {
         return property_exists(static::class, $name) ? static::$$name : $default;
     }
 
+    /**
+     * Get the collection handler transform.
+     *
+     * @return \Illuminate\Support\Collection
+     */
     protected function getCollectionTransformerHandler()
     {
         return Collection::class;

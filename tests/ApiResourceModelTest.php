@@ -240,18 +240,22 @@ class ApiResourceModelTest extends TestCase
         ];
 
         $model->items = [
-            new Model([
+            [
                 'id' => 1,
                 'price' => 5
-            ]),
-            new Model([
-                'id' => 1,
-                'price' => 5
-            ])
+            ],
+            [
+                'id' => 2,
+                'price' => 10
+            ]
         ];
 
         $this->assertInstanceOf(ResourceModelVisibleStub::class, $model->contact);
         $this->assertInstanceOf(Collection::class, $model->items);
+
+        $model->items->each(function ($item) {
+            $this->assertInstanceOf(Model::class, $item);
+        });
 
         $contact = new ResourceModelVisibleStub([
             'id' => 1,
@@ -268,6 +272,23 @@ class ApiResourceModelTest extends TestCase
         $this->assertArrayHasKey('id', $array);
         $this->assertArrayNotHasKey('name', $array);
         $this->assertArrayHasKey('type', $array);
+
+        // Test using add method
+        $model = new ResourceModelTransformStub();
+        $model->items->add([
+            'id' => 1,
+            'price' => 5
+        ])->add([
+            'id' => 2,
+            'price' => 10
+        ]);
+        $this->assertInstanceOf(Collection::class, $model->items);
+
+        $model->items->each(function ($item) {
+            $this->assertInstanceOf(Model::class, $item);
+            $this->assertArrayHasKey('id', $item);
+            $this->assertArrayHasKey('price', $item);
+        });
     }
 }
 
@@ -356,7 +377,7 @@ class ResourceModelTransformStub extends Model
 {
     protected static $transforms = [
         'contact' => ResourceModelVisibleStub::class,
-        'items' => Collection::class
+        'items' => Model::class . '[]',
     ];
 }
 

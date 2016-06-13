@@ -8,6 +8,8 @@ use Illuminate\Support\Collection as BaseCollection;
 class Collection extends BaseCollection
 {
 
+    protected $itemClass;
+
     /**
      * Create a new collection instance if the value isn't one already.
      *
@@ -23,7 +25,14 @@ class Collection extends BaseCollection
             }
         }
 
-        return new static($items);
+        return (new static($items))->setItemClass($type);
+    }
+
+    public function setItemClass($className)
+    {
+        $this->itemClass = $className;
+
+        return $this;
     }
 
     /**
@@ -52,6 +61,10 @@ class Collection extends BaseCollection
      */
     public function add($item)
     {
+        if ($this->itemClass) {
+            $className = $this->itemClass;
+            $item = new $className($item);
+        }
         $this->items[] = $item;
 
         return $this;
@@ -173,9 +186,9 @@ class Collection extends BaseCollection
      * @param  mixed  $keys
      * @return static
      */
-    public function only($keys)
+    public function only(...$keys)
     {
-        $dictionary = Arr::only($this->getDictionary(), $keys);
+        $dictionary = Arr::only($this->getDictionary(), $this->unPackKeys($keys));
 
         return new static(array_values($dictionary));
     }
@@ -186,9 +199,9 @@ class Collection extends BaseCollection
      * @param  mixed  $keys
      * @return static
      */
-    public function except($keys)
+    public function except(...$keys)
     {
-        $dictionary = Arr::except($this->getDictionary(), $keys);
+        $dictionary = Arr::except($this->getDictionary(), $this->unPackKeys($keys));
 
         return new static(array_values($dictionary));
     }
@@ -308,5 +321,14 @@ class Collection extends BaseCollection
         }
 
         return $items;
+    }
+
+    private function unPackKeys($values)
+    {
+        if (count($values) === 1 && is_array($values[0])) {
+            $values = current($values);
+        }
+
+        return $values;
     }
 }

@@ -40,7 +40,7 @@ trait AttributeTransformer
     }
 
     /**
-     * Transfor an attribute from simple type to Model
+     * Transform an attribute from simple type to Model
      *
      * @param  string $key
      * @param  mixed $value
@@ -51,10 +51,9 @@ trait AttributeTransformer
         $transformer = $this->getTransformer($key);
 
         if (is_callable($transformer)) {
-            $transformer = $transformer->bindTo($this);
-            return $transformer($value, $key);
-        }
-        if (Str::endsWith($transformer, '[]')) { // this is an colllection of transformed
+            $value = $transformer($value, $key);
+        } elseif (Str::endsWith($transformer, '[]')) {
+            // this is an colllection of transformed
             $collectionClass = $this->getCollectionTransformerHandler();
             if (!$value instanceof $collectionClass) {
                 $className = str_replace('[]', '', $transformer);
@@ -69,5 +68,10 @@ trait AttributeTransformer
         return $this;
     }
 
+    /**
+     * Handler for create collection of type
+     *
+     * @return \Illuminate\Support\Collection
+     */
     abstract protected function getCollectionTransformerHandler();
 }

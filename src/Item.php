@@ -12,9 +12,10 @@ class Item extends Resource
      * @var array
      */
     protected static $transforms = [
-        'category' => Category::class,
-        'price' => PriceList::class,
-        'tax' => 'Alegra\Tax[]' // this an collection of Tax
+        'category'  => Category::class,
+        'price'     => Item\Price::class . '[]',
+        'tax'       => Tax::class . '[]', // this an collection of Tax
+        'inventory' => Item\Inventory::class
     ];
 
     use Restable;

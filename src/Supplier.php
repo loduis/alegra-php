@@ -6,5 +6,5 @@ class Supplier extends Contact
 {
     const TYPE = self::TYPE_SUPPLIER;
 
-    use Support\ContactTypeable;
+    use Contact\Typeable;
 }
