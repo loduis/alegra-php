@@ -65,7 +65,7 @@ try {
 
     $contact = Contact::create(['name' => 'Your contact name']); // Create the contact
 
-    // Save using instance
+    // Save using constructor
     $contact = new Contact;
     $contact->name = 'My second contact';
     $contact->save(); // Update the contact
