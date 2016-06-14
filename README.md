@@ -47,22 +47,20 @@ Your composer.json file
 
 Your test.php script
 ```php
+<?php
 
-use Exception;
-use Alegra\Api
-use Alegra\Contact
+use Alegra\Api;
+use Alegra\Contact;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-
 
 require './vendor/autoload.php';
 
 Api::auth('Your user', 'Your api token');
 
 try {
-
     // Save using create method
 
     $contact = Contact::create(['name' => 'Your contact name']); // Create the contact
@@ -93,7 +91,7 @@ try {
 
     // Delete without get
 
-    $contact = new Contact(1)
+    $contact = new Contact(1);
     $contact->delete();
 
     // Delete using static interface
@@ -111,6 +109,7 @@ try {
 } catch (Exception $e) {
     // code
 }
+
 
 ```
 
