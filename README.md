@@ -64,11 +64,13 @@ try {
     // Save using create method
 
     $contact = Contact::create(['name' => 'Your contact name']); // Create the contact
+    print_r($contact);
 
     // Save using constructor
     $contact = new Contact;
     $contact->name = 'My second contact';
     $contact->save(); // Update the contact
+    print_r($contact);
 
     // Update an existing contact
 
@@ -76,6 +78,7 @@ try {
     $contact->identification = '900.123.123-8';
     $contact->email = 'email@server.com';
     $contact->save();
+    print_r($contact);
 
     // Get all contacts
 
@@ -86,13 +89,11 @@ try {
 
     // Get a delete
 
-    $contact = Contact::get(1);
-    $contact->delete();
+    Contact::get(1)->delete();
 
     // Delete without get
 
-    $contact = new Contact(1);
-    $contact->delete();
+    (new Contact(1))->delete();
 
     // Delete using static interface
 
