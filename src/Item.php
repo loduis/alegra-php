@@ -2,8 +2,6 @@
 
 namespace Alegra;
 
-use Illuminate\Api\Http\Restable;
-
 class Item extends Resource
 {
     /**
@@ -13,10 +11,8 @@ class Item extends Resource
      */
     protected static $transforms = [
         'category'  => Category::class,
-        'price'     => Item\Price::class . '[]',
-        'tax'       => Tax::class . '[]', // this an collection of Tax
+        'price'     => Item\Price::class . '[]', // this is a collection of Price
+        'tax'       => Tax::class . '[]', // this a collection of Tax
         'inventory' => Item\Inventory::class
     ];
-
-    use Restable;
 }

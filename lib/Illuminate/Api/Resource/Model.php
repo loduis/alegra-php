@@ -79,7 +79,13 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         $this->fill($attributes);
     }
 
-    public function fill(array $attributes)
+    /**
+     * Fill the model with an array of attributes.
+     *
+     * @param  array  $attributes
+     * @return $this
+     */
+    public function fill(array $attributes = [])
     {
         $this->attributes = [];
 

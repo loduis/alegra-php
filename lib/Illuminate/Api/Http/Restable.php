@@ -18,7 +18,7 @@ trait Restable
      */
     public static function all($params = [])
     {
-        return Collection::make(static::createFromRequest('GET', null, $params));
+        return Collection::make(static::instanceFromRequest('GET', null, $params));
     }
 
     /**
@@ -29,7 +29,7 @@ trait Restable
      */
     public static function create($params)
     {
-        return static::createFromRequest('POST', null, new static($params));
+        return static::instanceFromRequest('POST', null, new static($params));
     }
 
     /**
@@ -44,7 +44,7 @@ trait Restable
             throw new UnexpectedValueException('The id parameter is required.');
         }
 
-        return static::createFromRequest('GET', $id);
+        return static::instanceFromRequest('GET', $id);
     }
 
     /**
@@ -61,20 +61,24 @@ trait Restable
     }
 
     /**
-     * Detroy de current resource
+     * Delete method with support for instance a class methods
      *
+     * @param  mixed $resource
      * @return $this
      */
-    public function delete()
+    protected static function macroDeleteHandler($resource)
     {
-        if (!$this->id) {
+        $id = $resource;
+        if ($isResource = static::isResource($resource)) {
+            $id = $resource->id;
+        }
+
+        if (!$id) {
             throw new UnexpectedValueException('The id attribute is required.');
         }
 
-        static::request('DELETE', $this->id);
+        $attributes = static::requestToArray('DELETE', $id);
 
-        $this->attributes = [];
-
-        return $this;
+        return $isResource ? $resource->fill($attributes) : new static($attributes);
     }
 }

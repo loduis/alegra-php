@@ -18,13 +18,13 @@ use Illuminate\Support\Arr;
 trait Mailable
 {
     /**
-     * Send email the raw method
+     * Send email the handler method
      *
      * @param  int|static $resource
      * @param  array $options
      * @return bool
      */
-    protected static function sendRaw($resource, ...$options)
+    protected static function macroSendHandler($resource, ...$options)
     {
         if (static::isResource($resource)) {
             $resource = $resource->id;
@@ -51,23 +51,12 @@ trait Mailable
      * @param  mixed $resource
      * @return Mail
      */
-    protected static function mailRaw($resource)
+    protected static function macroMailHandler($resource)
     {
         if (!static::isResource($resource)) {
             $resource = new static($resource);
         }
 
         return new Mail($resource);
-    }
-
-    /**
-     * Check if resouce is an instance
-     *
-     * @param  mixed  $resource
-     * @return bool
-     */
-    protected static function isResource($resource)
-    {
-        return $resource instanceof static;
     }
 }

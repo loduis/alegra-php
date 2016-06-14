@@ -3,7 +3,6 @@
 namespace Alegra\Tests;
 
 use Alegra\Company;
-use GuzzleHttp\Exception\ClientException;
 
 class CompanyTest extends TestCase
 {
@@ -18,16 +17,6 @@ class CompanyTest extends TestCase
         $this->assertArrayHasKey('name', $company);
         $this->assertArrayHasKey('identification', $company);
         $this->assertInstanceOf(Company::class, $company);
-    }
-
-    public function testAll()
-    {
-        $this->assertPrivate(Company::class, 'all');
-    }
-
-    public function testDelete()
-    {
-        $this->assertPrivate(Company::class, 'delete');
     }
 
     public function testSave()

@@ -117,11 +117,18 @@ class ContactTest extends TestCase
         });
     }
 
+    /**
+     * @expectedException     \GuzzleHttp\Exception\ClientException
+     * @expectedExceptionCode 404
+     */
     public function testDelete()
     {
         $contact   = Contact::create(['name' => 'Prueba']);
         $contact->delete();
         $this->assertSame(null, $contact->id);
+        $contact   = Contact::create(['name' => 'Prueba']);
+        Contact::delete($contact->id);
+        $contact = Contact::get($contact->id);
     }
 
     public function testSave()

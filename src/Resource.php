@@ -2,6 +2,7 @@
 
 namespace Alegra;
 
+use Illuminate\Api\Http\Restable;
 use Illuminate\Api\Http\Resource as ApiResource;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Api\Http\Resource as ApiResource;
  */
 abstract class Resource extends ApiResource
 {
+    use Restable;
+    
     public static function first()
     {
         return static::all([

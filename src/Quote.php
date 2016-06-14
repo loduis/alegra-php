@@ -7,8 +7,6 @@ namespace Alegra;
  */
 class Quote extends Resource
 {
-    use \Illuminate\Api\Http\Restable;
-
     /**
      * Resource path
      *

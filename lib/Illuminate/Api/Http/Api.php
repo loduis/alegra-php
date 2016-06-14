@@ -25,6 +25,11 @@ abstract class Api
      */
     protected static $version;
 
+    /**
+     * The base uri for request
+     *
+     * @var string
+     */
     protected static $uri;
 
     /**
@@ -79,6 +84,12 @@ abstract class Api
         }
     }
 
+    /**
+     * Create http client for request handle
+     *
+     * @param  array  $options
+     * @return void
+     */
     public static function createClient(array $options = [])
     {
         Client::create(array_merge(

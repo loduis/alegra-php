@@ -2,13 +2,8 @@
 
 namespace Alegra;
 
-class Company extends Resource
+class Company extends \Illuminate\Api\Http\Resource
 {
-    use \Illuminate\Api\Http\Restable {
-        all as private;
-        delete as private;
-    }
-
     protected static $path = 'company';
 
     /**
@@ -18,7 +13,7 @@ class Company extends Resource
      */
     public static function get()
     {
-        return static::createFromRequest('GET');
+        return static::instanceFromRequest('GET');
     }
 
     /**

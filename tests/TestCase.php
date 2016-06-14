@@ -4,6 +4,7 @@ namespace Alegra\Tests;
 
 use Alegra\Api;
 use Faker\Factory as Faker;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Api\Testing\ApiHandler;
 use Psr\Http\Message\RequestInterface;
@@ -30,12 +31,14 @@ abstract class TestCase extends ApiTestCase
 
         if ($mode !== 'live') {
             if (!$handler) {
-                $handler = (new ApiHandler(__DIR__ . '/schemas'))
+                $handler = ApiHandler::create(__DIR__ . '/schemas')
                     ->request('POST /items', function (RequestInterface $request, $options) {
                         $price = array_get($options['json'], 'price');
                         $name = array_get($options['json'], 'name');
                         if (is_null($price) || is_numeric($name)) {
-                            return $this->createError(400, $request);
+                            return $this->createResponse(400, [
+
+                            ]);
                         }
                     })
                     ->request('GET /taxes', function (RequestInterface $request) {
@@ -57,8 +60,9 @@ abstract class TestCase extends ApiTestCase
                         ]);
                     });
             }
+            $stack = HandlerStack::create($handler);
             Api::clientOptions([
-                'handler' => $handler
+                'handler' => $stack
             ]);
         }
 

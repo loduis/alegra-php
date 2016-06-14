@@ -10,8 +10,6 @@ class Contact extends Resource
 
     protected static $path = 'contacts';
 
-    use \Illuminate\Api\Http\Restable;
-
     public function setTypeAttribute($value)
     {
         $value = array_values((array) $value);

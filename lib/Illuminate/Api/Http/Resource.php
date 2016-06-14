@@ -26,18 +26,17 @@ abstract class Resource extends Model
         parent::__construct($attributes);
     }
 
-
     /**
      * Create instance from reques
      *
      * @param  string $method
      * @param  null|int|string $id
-     * @param  array|\Illuminate\Support\Arrayable $params
+     * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return $this|array
      */
-    protected static function createFromRequest($method, $id = null, $params = [])
+    protected static function instanceFromRequest($method, $id = null, $params = [])
     {
-        $response = static::requestJson($method, $id, $params);
+        $response = static::requestToArray($method, $id, $params);
 
         if (Arr::isAssoc($response)) {
             return new static($response);
@@ -61,7 +60,7 @@ abstract class Resource extends Model
      */
     protected function store($method, $id = null)
     {
-        $attributes = static::requestJson($method, $id, $this);
+        $attributes = static::requestToArray($method, $id, $this);
 
         return $this->fill($attributes);
     }
@@ -71,7 +70,7 @@ abstract class Resource extends Model
      *
      * @param  string $method
      * @param  null|int|string $id
-     * @param  array|Arrayable $params
+     * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return array
      */
     protected static function request($method, $id = null, $params = [])
@@ -86,14 +85,14 @@ abstract class Resource extends Model
      *
      * @param  string $method
      * @param  null|int|string $id
-     * @param  array|Arrayable $params
+     * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return array
      */
-    protected static function requestJson($method, $id = null, $params = [])
+    protected static function requestToArray($method, $id = null, $params = [])
     {
         $response = static::request($method, $id, $params);
 
-        return json_decode($response->getBody(), true);
+        return (array) json_decode($response->getBody(), true);
     }
 
     /**
@@ -139,6 +138,17 @@ abstract class Resource extends Model
     }
 
     /**
+     * Check if resouce is an instance
+     *
+     * @param  mixed  $resource
+     * @return bool
+     */
+    protected static function isResource($resource)
+    {
+        return $resource instanceof static;
+    }
+
+    /**
      * Dynamically handle calls to the class.
      *
      * @param  string $method
@@ -174,7 +184,7 @@ abstract class Resource extends Model
      */
     private static function callMethod($objectOrClass, $method, $params)
     {
-        $method .= 'Raw';
+        $method = 'macro' . ucfirst($method) . 'Handler';
 
         if (!method_exists($objectOrClass, $method)) {
             throw new BadMethodCallException("Method {$method} does not exist.");

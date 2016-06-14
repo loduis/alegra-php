@@ -34,6 +34,11 @@ class ApiHandler
         $this->responseCallable = new CallableHandle;
     }
 
+    public static function create($schemaPath)
+    {
+        return new static($schemaPath);
+    }
+
     public function __invoke(RequestInterface $request, array $options)
     {
         list($method, $path) = $this->prepareRequest($request, $options);
