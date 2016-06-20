@@ -10,14 +10,18 @@ class FileHandle
 
     private $cache;
 
-    public function __construct($path)
+    private $separator;
+
+    public function __construct($path, $separator = '.')
     {
         $this->directory = $path;
         $this->cache = new Collection();
+        $this->separator = $separator;
     }
 
-    public function merge($path, array $data)
+    public function merge($method, $path, array $data)
     {
+        $path = $this->getPath($method, $path);
         return static::arrayMerge($this->get($path), $data);
     }
 
@@ -36,15 +40,20 @@ class FileHandle
         return $array2;
     }
 
-    public function fetch($path)
+    public function find($method, $path)
     {
-        $path .= '.fetch';
+        $path = $this->getPath($method, $path);
         if ($this->exists($path)) {
             return $this->get($path);
         }
     }
 
-    public function get($path)
+    protected function getPath($method, $path)
+    {
+        return strtolower($method) . $this->separator . $path;
+    }
+
+    protected function get($path)
     {
         if ($cache = ($this->cache->get($path))) {
             return $cache;

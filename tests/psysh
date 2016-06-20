@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+use Psy\Shell;
+use Psy\Configuration;
+use Illuminate\Support\Collection;
+use Illuminate\Api\Resource\Model;
+use Symfony\Component\VarDumper\Caster\Caster;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+(new Dotenv\Dotenv(__DIR__))->load();
+
+// Shortcut to alegra class
+spl_autoload_register(function ($className) {
+    $wrapClass = 'Alegra\\' . $className;
+   if (class_exists($wrapClass)) {
+        class_alias($wrapClass, $className);
+   }
+});
+
+Api::auth($_ENV['API_USER'], $_ENV['API_KEY']);
+
+$config = new Configuration;
+$config->getPresenter()->addCasters([
+    Collection::class => function (Collection $collection) {
+        return [
+            Caster::PREFIX_VIRTUAL.'all' => $collection->all(),
+        ];
+    },
+    Model::class => function (Model $model) {
+        $results = [];
+        foreach ($model->toArray() as $key => $value) {
+            $results[Caster::PREFIX_VIRTUAL . $key] = $value;
+        }
+        return $results;
+    }
+]);
+$shell = new Shell($config);
+$shell->run();

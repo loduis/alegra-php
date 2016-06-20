@@ -6,6 +6,7 @@ use Alegra\Contact;
 use Alegra\Supplier;
 use Alegra\Customer;
 use Illuminate\Api\Resource\Collection;
+use Illuminate\Support\Collection as BaseCollection;
 
 class ContactTest extends TestCase
 {
@@ -16,11 +17,44 @@ class ContactTest extends TestCase
         $this->assertEquals(Supplier::resolvePath(), 'contacts');
     }
 
+    /**
+     * @itest
+     *
+     * @return [type]
+     */
+    public function destroyAll()
+    {
+        Contact::all()->except(1, 2, 3)->each(function ($contact) {
+            $contact->delete();
+        });
+    }
+
+    /**
+     * @expectedException     \GuzzleHttp\Exception\ClientException
+     * @expectedExceptionCode 400
+     */
+    public function testShouldFailWhenInvalidEmailIsSet()
+    {
+        $contact = new Contact;
+        $contact->name = $this->faker->name;
+        $contact->email = 'invalid';
+        $contact->save();
+    }
+
+    public function testShouldSetTypeToNullWhenInvalidValueIfGiven()
+    {
+        $contact = new Contact;
+        $contact->name = $this->faker->name;
+        $contact->type = 'unknow';
+        $contact->save();
+        $this->assertCount(0, $contact->type);
+    }
+
     public function testCreateUsingArray()
     {
         $contact = Contact::create([
             'name'           => $this->faker->name,
-            'type'           => 'client',
+            'type'           => Contact::TYPE_CUSTOMER,
             'identification' => $this->faker->dni,
             'email'          => $this->faker->email,
             'phonePrimary'   => $this->faker->phoneNumber,
@@ -32,6 +66,9 @@ class ContactTest extends TestCase
 
         $this->assertInstanceOf(Contact::class, $contact);
         $this->assertNotNull($contact->id);
+        $this->assertContains(Contact::TYPE_CUSTOMER, $contact->type);
+        $this->assertCount(1, $contact->type);
+        $this->assertInstanceOf(BaseCollection::class, $contact->type);
 
         $customer = Customer::create([
             'name' => $this->faker('name')
@@ -41,6 +78,7 @@ class ContactTest extends TestCase
         $this->assertNotNull($customer->id);
         $this->assertContains(Contact::TYPE_CUSTOMER, $customer->type);
         $this->assertCount(1, $customer->type);
+        $this->assertInstanceOf(BaseCollection::class, $customer->type);
 
         $supplier = Supplier::create([
             'name' => $this->faker('name')
@@ -50,6 +88,28 @@ class ContactTest extends TestCase
         $this->assertNotNull($supplier->id);
         $this->assertContains(Contact::TYPE_SUPPLIER, $supplier->type);
         $this->assertCount(1, $supplier->type);
+        $this->assertInstanceOf(BaseCollection::class, $supplier->type);
+
+        $contact = Contact::create([
+            'name' => $this->faker('name')
+        ]);
+
+        $this->assertInstanceOf(Contact::class, $contact);
+        $this->assertNotNull($contact->id);
+        $this->assertCount(0, $contact->type);
+        $this->assertInstanceOf(BaseCollection::class, $contact->type);
+
+        $contact->type->push(Contact::TYPE_CUSTOMER);
+        $this->assertCount(1, $contact->type);
+        $this->assertContains(Contact::TYPE_CUSTOMER, $contact->type);
+
+        $contact->type->push(Contact::TYPE_SUPPLIER);
+        $this->assertCount(2, $contact->type);
+        $this->assertContains(Contact::TYPE_SUPPLIER, $contact->type);
+
+        $contact->save();
+        $this->assertCount(2, $contact->type);
+        $this->assertInstanceOf(BaseCollection::class, $contact->type);
     }
 
     public function testCreateUsingConstructor()
@@ -70,6 +130,13 @@ class ContactTest extends TestCase
         $supplier->save();
         $this->assertNotNull($supplier->id);
 
+        $contact = new Contact;
+        $contact->name = $this->faker->name;
+        $contact->type[] = Contact::TYPE_CUSTOMER;
+        $contact->type[] = Contact::TYPE_SUPPLIER;
+
+        $this->assertCount(2, $contact->type);
+        $this->assertInstanceOf(BaseCollection::class, $contact->type);
     }
 
     public function testGet()

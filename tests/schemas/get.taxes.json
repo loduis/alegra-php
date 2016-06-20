@@ -1,0 +1,44 @@
+[
+  {
+     "id": 1,
+     "name": "IVA",
+     "percentage": "0.00",
+     "description": "",
+     "type": "IVA"
+  },
+  {
+     "id": 2,
+     "name": "IVA",
+     "percentage": "5.00",
+     "description": "",
+     "type": "IVA"
+  },
+  {
+     "id": 3,
+     "name": "IVA",
+     "percentage": "16.00",
+     "description": "",
+     "type": "IVA"
+  },
+  {
+     "id": 4,
+     "name": "Test",
+     "percentage": "10.00",
+     "description": "",
+     "type": "ICO"
+  },
+  {
+     "id": 5,
+     "name": "IVA",
+     "percentage": "21.00",
+     "description": "",
+     "type": "IVA"
+  },
+  {
+     "id": 6,
+     "name": "IVA",
+     "percentage": "2.50",
+     "description": "",
+     "type": "IVA"
+  }
+]

@@ -3,6 +3,7 @@
 namespace Alegra\Contact;
 
 use DomainException;
+use Illuminate\Support\Collection;
 
 trait Typeable
 {
@@ -55,8 +56,9 @@ trait Typeable
 
     protected static function checkType($types)
     {
-        if (!in_array(static::TYPE, $types)) {
-            throw new DomainException('Invalid contact type: ' . implode(',', $types));
+        $types = Collection::make($types);
+        if (!$types->contains(static::TYPE)) {
+            throw new DomainException('Invalid contact type: ' . $types->implode(','));
         }
     }
 }

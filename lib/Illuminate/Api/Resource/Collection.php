@@ -11,24 +11,22 @@ class Collection extends BaseCollection
     protected $itemClass;
 
     /**
-     * Create a new collection instance if the value isn't one already.
+     * Create a new collection instance of.
      *
      * @param  mixed  $items
      * @return static
      */
-    public static function makeOfClass($type, $items)
+    public static function makeOf($className, $items)
     {
-        $items = (array) $items;
-        foreach ($items as $index => $item) {
-            if (!$item instanceof $type) {
-                $items[$index] = new $type($item);
-            }
+        $collection = (new static())->itemClass($className);
+        foreach ((array) $items as $item) {
+            $collection->push(static::getOfClass($className, $item));
         }
 
-        return (new static($items))->setItemClass($type);
+        return $collection;
     }
 
-    public function setItemClass($className)
+    public function itemClass($className)
     {
         $this->itemClass = $className;
 
@@ -61,13 +59,18 @@ class Collection extends BaseCollection
      */
     public function add($item)
     {
-        if ($this->itemClass) {
-            $className = $this->itemClass;
-            $item = new $className($item);
-        }
-        $this->items[] = $item;
+        $this->items[] = static::getOfClass($this->itemClass, $item);
 
         return $this;
+    }
+
+    protected static function getOfClass($className, $item)
+    {
+        if ($className && !($item instanceof $className)) {
+            $item = new $className($item);
+        }
+
+        return $item;
     }
 
     /**

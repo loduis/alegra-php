@@ -2,10 +2,14 @@
 
 namespace Illuminate\Api\Testing;
 
+use ReflectionMethod;
 use ReflectionFunction;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\TransferStats;
+use Illuminate\Support\Collection;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
@@ -26,9 +30,9 @@ class ApiHandler
 
     private $originalResource;
 
-    public function __construct($schemaPath)
+    public function __construct($schemaPath, $separator = '.')
     {
-        $this->files = new FileHandle($schemaPath);
+        $this->files = new FileHandle($schemaPath, $separator);
         $this->collections = new ArrayHandle;
         $this->requestCallable = new CallableHandle;
         $this->responseCallable = new CallableHandle;
@@ -45,8 +49,12 @@ class ApiHandler
         $this->originalResource = [];
         $response = null;
         if (($handler = $this->requestCallable->find($method, $path))) {
-            $handler = $handler->bindTo($this);
             $response = $handler($request, $options);
+            if ($response instanceof RequestInterface) {
+                $request = $response;
+            } elseif (is_numeric($response)) {
+                $response = $this->createResponse($response);
+            }
         }
 
         if ((!$response instanceof ResponseInterface) && (!$response instanceof \Exception)) {
@@ -103,7 +111,12 @@ class ApiHandler
      */
     public function request($message, callable $callback)
     {
-        $reflection = new ReflectionFunction($callback);
+        if (!is_callable($callback, false, $callableName)) {
+            throw new InvalidArgumentException('The callback parameter is not callable');
+        }
+
+        $reflectionClass = 'Reflection' . (Str::contains($callableName, '::') ? 'Method' : 'Function');
+        $reflection = new $reflectionClass($callableName);
 
         if ($reflection->getNumberOfParameters() > 0) {
             $parameters = $reflection->getParameters();
@@ -113,7 +126,6 @@ class ApiHandler
                 return $this;
             }
         }
-
 
         $this->requestCallable->put($message, $callback);
 
@@ -132,11 +144,15 @@ class ApiHandler
         list($path, $id) = static::parsePath($path);
 
         $resources = $this->collections->get($path);
+        if (!count($resources) && ($fileStorage = $this->files->find('get', $path))) {
+            if (!Arr::isAssoc($fileStorage)) {
+                $fileStorage = Collection::make($fileStorage);
+            }
+            $this->collections->put($path, $resources = $fileStorage);
+        }
 
         if ($id !== null) {
             $resources = $this->first($resources, $id);
-        } elseif (!count($resources) && ($resource = $this->files->fetch($path))) {
-            $this->collections->put($path, $resources = $resource);
         } elseif ($options['query']) {
             $resources = $this->filterApply($resources, $options['query']);
         }
@@ -160,7 +176,7 @@ class ApiHandler
         if ($id === null) {
             $status         = 201;
             $resources      = $this->collections->get($path);
-            $resource       = $this->files->merge($path, $options['json']);
+            $resource       = $this->files->merge('post', $path, $options['json']);
             $resource['id'] = count($resources) + 1;
             $resources->push($resource);
         } else {
@@ -189,7 +205,7 @@ class ApiHandler
             }
         } else {
             if (($count = count($resources)) == 0) {
-                if ($resources = $this->files->fetch($path)) {
+                if ($resources = $this->files->find('get', $path)) {
                     $count = 1;
                 }
             }
@@ -277,6 +293,10 @@ class ApiHandler
 
     private function filterApply($resources, $filters)
     {
+        $limit = (int) Arr::pull($filters, 'limit');
+        if ($limit > 0) {
+            $resources = $resources->slice(0, $limit);
+        }
         foreach ($filters as $key => $value) {
             $resources = $this->filter($resources, $key, $value);
         }
@@ -297,7 +317,7 @@ class ApiHandler
         });
     }
 
-    public function createResponse($status, $resource)
+    public function createResponse($status, $resource = [])
     {
         return new Response($status, ['Content-Type' => 'application/json'], json_encode($resource, JSON_PRETTY_PRINT));
     }

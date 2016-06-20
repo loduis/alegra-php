@@ -57,10 +57,10 @@ trait AttributeTransformer
             $collectionClass = $this->getCollectionTransformerHandler();
             if (!$value instanceof $collectionClass) {
                 $className = str_replace('[]', '', $transformer);
-                $value = $collectionClass::makeOfClass($className, $value);
+                $value = $collectionClass::makeOf($className, $value);
             }
         } elseif (!$value instanceof $transformer) {
-            $value = new $transformer($value);
+            $value = new $transformer((array) $value);
         }
 
         $this->attributes[$key] = $value;

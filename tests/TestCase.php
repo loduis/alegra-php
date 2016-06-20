@@ -3,7 +3,9 @@
 namespace Alegra\Tests;
 
 use Alegra\Api;
+use Alegra\Contact;
 use Faker\Factory as Faker;
+use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Api\Testing\ApiHandler;
@@ -25,40 +27,15 @@ abstract class TestCase extends ApiTestCase
         // If is live run over the alegra server
         $mode = getenv('API_ENV');
 
-        if ($_SERVER['argc'] === 3) {
+        if ($_SERVER['argc'] >= 3) {
             $mode = $_SERVER['argv'][2];
         }
 
         if ($mode !== 'live') {
             if (!$handler) {
                 $handler = ApiHandler::create(__DIR__ . '/schemas')
-                    ->request('POST /items', function (RequestInterface $request, $options) {
-                        $price = array_get($options['json'], 'price');
-                        $name = array_get($options['json'], 'name');
-                        if (is_null($price) || is_numeric($name)) {
-                            return $this->createResponse(400, [
-
-                            ]);
-                        }
-                    })
-                    ->request('GET /taxes', function (RequestInterface $request) {
-                        return $this->createResponse(200, [
-                              [
-                                'id' => 1,
-                                'name' => 'IVA',
-                                'percentage' => '5.00',
-                                'description' => '',
-                                'type' => 'IVA',
-                              ],
-                              [
-                                'id' => 2,
-                                'name' => 'IVA',
-                                'percentage' => '5.00',
-                                'description' => '',
-                                'type' => 'IVA',
-                              ],
-                        ]);
-                    });
+                    ->request('POST /contacts', new Handlers\PostContactHandler)
+                    ->request('POST /items', new Handlers\PostItemHandler);
             }
             $stack = HandlerStack::create($handler);
             Api::clientOptions([

@@ -360,7 +360,18 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      */
     protected static function getStaticProperty($name, $default = null)
     {
-        return property_exists(static::class, $name) ? static::$$name : $default;
+        return static::propertyExists($name) ? static::$$name : $default;
+    }
+
+    /**
+     * Check if exists a property in the current resource
+     *
+     * @param  string $property
+     * @return bool
+     */
+    protected static function propertyExists($property)
+    {
+        return property_exists(static::class, $property);
     }
 
     /**

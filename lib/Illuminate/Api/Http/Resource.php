@@ -6,14 +6,14 @@ use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Api\Resource\Model;
+use Illuminate\Api\Resource\Collection;
 
 abstract class Resource extends Model
 {
     /**
      * Create a new resource  instance.
      *
-     * @param  mixed    $attributes
-     * @return void
+     * @param  mixed $attributes
      */
     public function __construct($attributes = [])
     {
@@ -42,27 +42,7 @@ abstract class Resource extends Model
             return new static($response);
         }
 
-        $rows = [];
-
-        foreach ($response as $line) {
-            $rows[] = new static($line);
-        }
-
-        return $rows;
-    }
-
-    /**
-     * Store and refresh object
-     *
-     * @param  string $method
-     * @param  int|string $id
-     * @return $this
-     */
-    protected function store($method, $id = null)
-    {
-        $attributes = static::requestToArray($method, $id, $this);
-
-        return $this->fill($attributes);
+        return Collection::makeOf(static::class, $response);
     }
 
     /**
@@ -71,9 +51,10 @@ abstract class Resource extends Model
      * @param  string $method
      * @param  null|int|string $id
      * @param  array|\Illuminate\Contracts\Support\Arrayable $params
-     * @return array
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected static function request($method, $id = null, $params = [])
+    public static function request($method, $id = null, $params = [])
     {
         $path = static::resolvePath()  . ($id ? "/$id" : '');
 
@@ -88,7 +69,7 @@ abstract class Resource extends Model
      * @param  array|\Illuminate\Contracts\Support\Arrayable $params
      * @return array
      */
-    protected static function requestToArray($method, $id = null, $params = [])
+    public static function requestToArray($method, $id = null, $params = [])
     {
         $response = static::request($method, $id, $params);
 
@@ -127,17 +108,6 @@ abstract class Resource extends Model
     }
 
     /**
-     * Check if exists a property in the current resource
-     *
-     * @param  string $property
-     * @return bool
-     */
-    protected static function propertyExists($property)
-    {
-        return property_exists(static::class, $property);
-    }
-
-    /**
      * Check if resouce is an instance
      *
      * @param  mixed  $resource
@@ -149,6 +119,21 @@ abstract class Resource extends Model
     }
 
     /**
+     * Store and refresh object
+     *
+     * @param  string $method
+     * @param  int|string $id
+     *
+     * @return $this
+     */
+    protected function store($method, $id = null)
+    {
+        $attributes = static::requestToArray($method, $id, $this);
+
+        return $this->fill($attributes);
+    }
+
+    /**
      * Dynamically handle calls to the class.
      *
      * @param  string $method
@@ -157,7 +142,7 @@ abstract class Resource extends Model
      */
     public static function __callStatic($method, $params)
     {
-        return static::callMethod(static::class, $method, $params);
+        return static::callMacro(static::class, $method, $params);
     }
 
     /**
@@ -171,7 +156,7 @@ abstract class Resource extends Model
     {
         array_unshift($params, $this);
 
-        return static::callMethod($this, $method, $params);
+        return static::callMacro($this, $method, $params);
     }
 
     /**
@@ -182,7 +167,7 @@ abstract class Resource extends Model
      * @param  array $params
      * @return mixed
      */
-    private static function callMethod($objectOrClass, $method, $params)
+    private static function callMacro($objectOrClass, $method, $params)
     {
         $method = 'macro' . ucfirst($method) . 'Handler';
 

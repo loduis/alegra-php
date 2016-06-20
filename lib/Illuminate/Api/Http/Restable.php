@@ -3,7 +3,6 @@
 namespace Illuminate\Api\Http;
 
 use UnexpectedValueException;
-use Illuminate\Api\Resource\Collection;
 
 /**
  * Add ability of rest resurce
@@ -18,7 +17,7 @@ trait Restable
      */
     public static function all($params = [])
     {
-        return Collection::make(static::instanceFromRequest('GET', null, $params));
+        return static::instanceFromRequest('GET', null, $params);
     }
 
     /**
@@ -54,10 +53,7 @@ trait Restable
      */
     public function save()
     {
-        $id = $this->id;
-        $method = $id === null ? 'POST' : 'PUT';
-
-        return $this->store($method, $id);
+        return $this->store($this->id === null ? 'POST' : 'PUT', $this->id);
     }
 
     /**
