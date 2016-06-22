@@ -154,6 +154,11 @@ abstract class Resource extends Model
      */
     public function __call($method, $params)
     {
+        if (preg_match('/(?<=^|;)set([^;]+?)Attribute(;|$)/', $method, $match)) {
+            $key = lcfirst($match[1]);
+            return $this->setAttrubute($key, count($params) > 0 ? $params[0] : true);
+        }
+
         array_unshift($params, $this);
 
         return static::callMacro($this, $method, $params);
