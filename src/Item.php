@@ -15,4 +15,9 @@ class Item extends Resource
         'tax'       => Tax::class . '[]', // this a collection of Tax
         'inventory' => Item\Inventory::class
     ];
+
+    /**
+     * Add ability for support metadata
+     */
+    use Support\Metadata;
 }

@@ -13,4 +13,9 @@ class Quote extends Resource
      * @var string
      */
     protected static $path = 'estimates';
+
+    /**
+     * Add ability for support metadata
+     */
+    use Support\Metadata;
 }
