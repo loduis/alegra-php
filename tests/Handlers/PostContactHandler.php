@@ -19,7 +19,7 @@ class PostContactHandler
         // type unknow
         if (array_has($params, 'type') && count($params['type']) == 1) {
             $type = current($params['type']);
-            if (!in_array($type, [Contact::TYPE_CUSTOMER, Contact::TYPE_SUPPLIER])) {
+            if (!in_array($type, [Contact::TYPE_CLIENT, Contact::TYPE_PROVIDER])) {
                 $type = null;
             }
             $params['type'] = (array) $type;

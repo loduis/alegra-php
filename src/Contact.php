@@ -7,9 +7,9 @@ use Illuminate\Support\Collection;
 
 class Contact extends Resource
 {
-    const TYPE_CUSTOMER = 'client';
+    const TYPE_CLIENT = 'client';
 
-    const TYPE_SUPPLIER = 'provider';
+    const TYPE_PROVIDER = 'provider';
 
     protected static $path = 'contacts';
 
