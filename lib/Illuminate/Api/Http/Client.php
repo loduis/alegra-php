@@ -64,7 +64,19 @@ class Client
             $params = (array) $params;
         }
         if ($params) {
-            $options[$method === 'GET' ? 'query' : 'json'] = $params;
+            if ($method == 'GET') {
+                // fix boolean parameter for using in the correct format
+                array_walk_recursive($params, function (&$item) {
+                    if ($item === false) {
+                        $item = 'false';
+                    } elseif ($item === true) {
+                        $item = 'true';
+                    }
+                });
+                $options['query'] = $params;
+            } else {
+                $options['json'] = $params;
+            }
         }
 
         return $options;
