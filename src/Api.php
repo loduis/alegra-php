@@ -19,7 +19,7 @@ class Api
      *
      * @var  string
      */
-    const BINDING_VERSION = '0.14.0';
+    const BINDING_VERSION = '0.15.0';
 
     /**
      * Custom options of http client
