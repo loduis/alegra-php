@@ -46,10 +46,16 @@ trait AttributeFillable
         if ($fillable == ['*']) {
             return true;
         }
+
+        // Add primary key to fillable
+        if (method_exists($this, 'getKeyName')) {
+            $fillable[$this->getKeyName()] = $this->getKeyType();
+        }
+
         // If the key is in the "fillable" array, we can of course assume that it's
         // a fillable attribute. Otherwise, we will check the guarded array when
         // we need to determine if the attribute is black-listed on the model.
-        if (in_array($key, $fillable)) {
+        if (array_key_exists($key, $fillable)) {
             return true;
         }
 
@@ -63,13 +69,19 @@ trait AttributeFillable
      */
     public function getFillable()
     {
-        $fillable = $this->fillable;
+        if ($fillable = $this->fillable) {
+            if (Arr::isAssoc($fillable)) {
+                return $fillable;
+            }
 
-        if (Arr::isAssoc($fillable)) {
-            return array_keys($fillable);
+            $keys = array_values($fillable);
+            $types = array_fill(0, count($keys), 'string');
+
+            return array_combine(
+                $keys,
+                $types
+            );
         }
-
-        return $fillable;
     }
 
     /**
@@ -78,28 +90,11 @@ trait AttributeFillable
      * @param  array  $fillable
      * @return $this
      */
-    public function fillable($key, $type = null)
+    public function fillable($key, $type = 'string')
     {
         $this->fillable[$key] = $type;
 
         return $this;
-    }
-
-    /**
-     * Get casts from fillable attribute
-     * When fillable is assoc the value is the type
-     *
-     * @return array
-     */
-    public function getCastFromFillable()
-    {
-        $fillable = $this->fillable;
-
-        if (Arr::isAssoc($fillable)) {
-            return array_values($fillable);
-        }
-
-        return [];
     }
 
     /**

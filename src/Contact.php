@@ -29,12 +29,21 @@ class Contact extends Resource
      *
      * @var array
      */
-    protected static $casts = [
-
-        'seller'  => Seller::class,
-        'address' => Address::class,
-        'term'    => Term::class,
-        'type'    => Collection::class
+    protected $fillable = [
+        'name'             => 'string',
+        'identification'   => 'string',
+        'email'            => 'string',
+        'phonePrimary'     => 'string',
+        'phoneSecondary'   => 'string',
+        'fax'              => 'string',
+        'mobile'           => 'string',
+        'observations'     => 'string',
+        'address'          => Address::class,
+        'type'             => Collection::class,
+        'seller'           => Seller::class,
+        'term'             => Term::class,
+        'priceList'        => Price::class,
+        'internalContacts' => Collection::class
     ];
 
     /**

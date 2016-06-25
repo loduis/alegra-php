@@ -5,6 +5,7 @@ namespace Illuminate\Support\Traits;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as BaseCollection;
 
 trait AttributeCastable
@@ -42,6 +43,7 @@ trait AttributeCastable
     {
         $casts = static::getStaticProperty('casts', []);
         $casts = array_merge($this->getCastFromFillable(), $casts);
+
         if (method_exists($this, 'getKeyType')) {
             $casts[$this->getKeyName()] = $this->getKeyType();
         }
@@ -308,6 +310,23 @@ trait AttributeCastable
         }
 
         return $value;
+    }
+
+    /**
+     * Get casts from fillable attribute
+     * When fillable is assoc the value is the type
+     *
+     * @return array
+     */
+    protected function getCastFromFillable()
+    {
+        $fillable = $this->fillable;
+
+        if (Arr::isAssoc($fillable)) {
+            return $fillable;
+        }
+
+        return [];
     }
 
     /**
