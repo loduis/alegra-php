@@ -138,4 +138,27 @@ trait AttributeAccess
     {
         unset($this->$offset);
     }
+
+    /**
+     * Get a static property from Model or $defualt if not exists
+     *
+     * @param  string $name
+     * @param  mixed $default
+     * @return mixed
+     */
+    protected static function getStaticProperty($name, $default = null)
+    {
+        return static::staticPropertyExists($name) ? static::$$name : $default;
+    }
+
+    /**
+     * Check if exists a property in the current resource
+     *
+     * @param  string $property
+     * @return bool
+     */
+    protected static function staticPropertyExists($property)
+    {
+        return property_exists(static::class, $property);
+    }
 }

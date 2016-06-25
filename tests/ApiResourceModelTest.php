@@ -267,7 +267,6 @@ class ApiResourceModelTest extends TestCase
         $this->assertArrayHasKey('id', $array);
         $this->assertArrayHasKey('name', $array);
         $this->assertArrayHasKey('type', $array);
-
         $array = $model->toArray()['contact'];
         $this->assertArrayHasKey('id', $array);
         $this->assertArrayNotHasKey('name', $array);
@@ -375,7 +374,7 @@ class ResourceModelCastingStub extends Model
 
 class ResourceModelTransformStub extends Model
 {
-    protected static $transforms = [
+    protected static $casts = [
         'contact' => ResourceModelVisibleStub::class,
         'items' => Model::class . '[]',
     ];

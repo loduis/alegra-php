@@ -8,9 +8,11 @@ use Illuminate\Support\Str;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Traits\AttributeAccess;
+use Illuminate\Support\Traits\AttributeCastable;
+use Illuminate\Support\Traits\AttributeFillable;
 use Illuminate\Support\Traits\AttributeSerialize;
 
-class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
+class Filter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
 
     /**
@@ -21,11 +23,11 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     public static $snakeAttributes = false;
 
     /**
-     * The model's attributes.
+     * The storage format of the model's date columns.
      *
-     * @var array
+     * @var string
      */
-    protected $attributes = [];
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     /**
      * Add ability for access attributes
@@ -33,9 +35,45 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     use AttributeAccess;
 
     /**
+     * Add ability for casting attributes
+     */
+    use AttributeCastable;
+
+    /**
      * Add ability for convert to json
      */
     use AttributeSerialize;
+
+    /**
+     * Add ability for mass assignment attribute
+     */
+    use AttributeFillable;
+
+    /**
+     * Create a new instance if the value isn't one already.
+     *
+     * @param  mixed  $parameters
+     * @return static
+     */
+    public static function make($parameters = [])
+    {
+        if ($parameters instanceof static) {
+            return $parameters;
+        }
+
+        return new static($parameters);
+    }
+
+    /**
+     * Create a new Eloquent model instance.
+     *
+     * @param  array  $attributes
+     * @return void
+     */
+    public function __construct(array $attributes = [])
+    {
+        $this->fill($attributes);
+    }
 
     /**
      * Set a given attribute on the parameter.
@@ -48,7 +86,9 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     {
         $key = $this->snakeAttribute($key);
 
-        $this->attributes[$key] = $value;
+        $this->validateFillable($key);
+
+        $this->attributes[$key] = $this->castSetAttribute($key, $value);
 
         return $this;
     }
@@ -63,7 +103,16 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     {
         $key = $this->snakeAttribute($key);
         if (array_key_exists($key, $this->attributes)) {
-            return $this->attributes[$key];
+            $value = $this->attributes[$key];
+
+            // If the attribute exists within the cast array, we will convert it to
+            // an appropriate native PHP type dependant upon the associated value
+            // given with the key in the pair. Dayle made this comment line up.
+            if ($this->hasCast($key)) {
+                return $this->castAttribute($key, $value);
+            }
+
+            return $value;
         }
     }
 
@@ -82,6 +131,10 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
             // collections to their proper array form and we'll set the values.
             if ($value instanceof Arrayable) {
                 $value = $value->toArray();
+            } elseif ($value === true) { // fix bool for query string
+                $value = 'true';
+            } elseif ($value === false) { // fix bool for query string
+                $value = 'false';
             }
             $attributes[$key] = $value;
         }
@@ -98,9 +151,10 @@ class Parameter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      */
     public function __call($method, $parameters)
     {
-        $method = $this->snakeAttribute($method);
+        $key = $this->snakeAttribute($method);
+        $value = count($parameters) > 0 ? $parameters[0] : true;
 
-        $this->attributes[$method] = count($parameters) > 0 ? $parameters[0] : true;
+        $this->setAttribute($key, $value);
 
         return $this;
     }

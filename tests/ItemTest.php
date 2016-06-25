@@ -67,11 +67,13 @@ class ItemTest extends TestCase
 
     public function testSaveWithTaxAttribute()
     {
+        $tax  = Tax::first();
         $item = new Item;
         $item->name = $this->faker('name');
         $item->price = 5;
-        $item->tax = Tax::first();
+        $item->tax = $tax;
         $item->save();
+
         $this->assertInstanceOf(Collection::class, $item->price);
         $this->assertInstanceOf(Collection::class, $item->tax);
 

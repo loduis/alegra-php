@@ -18,7 +18,12 @@ class Collection extends BaseCollection
      */
     public static function makeOf($className, $items)
     {
-        $collection = (new static())->itemClass($className);
+        $collection = (new static)->itemClass($className);
+        if ($items instanceof $className) {
+            $items = [
+                $items
+            ];
+        }
         foreach ((array) $items as $item) {
             $collection->push(static::getOfClass($className, $item));
         }
@@ -260,9 +265,9 @@ class Collection extends BaseCollection
      * @param  mixed ...$items
      * @return \Illuminate\Support\Collection
      */
-    public function zip($items)
+    public function zip(...$items)
     {
-        return call_user_func_array([$this->toBase(), 'zip'], func_get_args());
+        return call_user_func_array([$this->toBase(), 'zip'], $items);
     }
 
     /**

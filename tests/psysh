@@ -5,6 +5,7 @@ use Psy\Shell;
 use Psy\Configuration;
 use Illuminate\Support\Collection;
 use Illuminate\Api\Resource\Model;
+use Illuminate\Api\Resource\Parameter;
 use Symfony\Component\VarDumper\Caster\Caster;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -13,28 +14,44 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // Shortcut to alegra class
 spl_autoload_register(function ($className) {
-    $wrapClass = 'Alegra\\' . $className;
-   if (class_exists($wrapClass)) {
-        class_alias($wrapClass, $className);
+   static $wrappers = [
+      'Alegra',
+      'Alegra\\Support'
+   ], $queue = [];
+   foreach ($wrappers as $wrapClass) {
+       $wrapClass = $wrapClass . '\\'. $className;
+       if (isset($queue[$wrapClass])) {
+           continue;
+       }
+       $queue[$wrapClass] = true;
+       if (class_exists($wrapClass)) {
+           unset($queue[$wrapClass]);
+           return class_alias($wrapClass, $className);
+       }
    }
-});
+}, true);
 
 Api::auth($_ENV['API_USER'], $_ENV['API_KEY']);
 
+$casterToArray = function ($model) {
+    $results = [];
+    foreach ($model->toArray() as $key => $value) {
+        $results[Caster::PREFIX_VIRTUAL . $key] = $value;
+    }
+    return $results;
+};
+
+$casterCollection = function (Collection $collection) {
+    return [
+        Caster::PREFIX_VIRTUAL.'all' => $collection->all(),
+    ];
+};
+
 $config = new Configuration;
 $config->getPresenter()->addCasters([
-    Collection::class => function (Collection $collection) {
-        return [
-            Caster::PREFIX_VIRTUAL.'all' => $collection->all(),
-        ];
-    },
-    Model::class => function (Model $model) {
-        $results = [];
-        foreach ($model->toArray() as $key => $value) {
-            $results[Caster::PREFIX_VIRTUAL . $key] = $value;
-        }
-        return $results;
-    }
+    Collection::class => $casterCollection,
+    Model::class => $casterToArray,
+    Parameter::class => $casterToArray
 ]);
 $shell = new Shell($config);
 $shell->run();

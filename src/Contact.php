@@ -29,7 +29,8 @@ class Contact extends Resource
      *
      * @var array
      */
-    protected static $transforms = [
+    protected static $casts = [
+
         'seller'  => Seller::class,
         'address' => Address::class,
         'term'    => Term::class,
@@ -40,4 +41,9 @@ class Contact extends Resource
      * Add ability for support metadata
      */
     use Support\Metadata;
+
+    protected static function filterWith()
+    {
+        return (new Support\Filter)->fillable('type', 'string');
+    }
 }

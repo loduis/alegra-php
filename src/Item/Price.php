@@ -9,7 +9,9 @@ class Price extends \Illuminate\Api\Resource\Model
      *
      * @var string
      */
-    protected $primaryKey = 'idPriceList';
+    protected $primaryKey = [
+        'idPriceList' => 'int'
+    ];
 
     /**
      * Attribute casting

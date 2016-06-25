@@ -4,11 +4,11 @@ namespace Illuminate\Support\Traits;
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection as BaseCollection;
 
 trait AttributeCastable
 {
-
     protected function castAttributes(array &$attributes, array $mutatedAttributes = [])
     {
         // Next we will handle any casts that have been setup for this model and cast
@@ -41,7 +41,10 @@ trait AttributeCastable
     public function getCasts()
     {
         $casts = static::getStaticProperty('casts', []);
-        $casts[$this->getKeyName()] = static::$castKey;
+        $casts = array_merge($this->getCastFromFillable(), $casts);
+        if (method_exists($this, 'getKeyType')) {
+            $casts[$this->getKeyName()] = $this->getKeyType();
+        }
 
         return $casts;
     }
@@ -90,9 +93,11 @@ trait AttributeCastable
      * @param  string  $key
      * @return string
      */
-    protected function getCastType($key)
+    protected function getCastType($key, $lower = true)
     {
-        return trim(strtolower($this->getCasts()[$key]));
+        $type = trim($this->getCasts()[$key]);
+
+        return $lower ? strtolower($type) : $type;
     }
 
     /**
@@ -184,6 +189,10 @@ trait AttributeCastable
     protected function castAttribute($key, $value)
     {
         if (is_null($value)) {
+            if ($this->isObjectCastable($key)) {
+                return $this->setAttribute($key, $value)->getAttribute($key);
+            }
+
             return $value;
         }
 
@@ -218,11 +227,101 @@ trait AttributeCastable
     }
 
     /**
-     * Get the format for stored dates.
+     * Convert a DateTime to a storable string.
      *
+     * @param  \DateTime|int  $value
      * @return string
      */
-    abstract protected function getDateFormat();
+    public function fromDateTime($value)
+    {
+        $format = $this->getDateFormat();
+
+        $value = $this->asDateTime($value);
+
+        return $value->format($format);
+    }
+
+    /**
+     * Cast an attribute to a native PHP type.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return mixed
+     */
+    protected function castSetAttribute($key, $value, $collectionClass = BaseCollection::class)
+    {
+
+        if ($this->isObjectCastable($key)) {
+            return $this->asObject($key, $value, $collectionClass);
+        }
+
+        if ($value && $this->isDateCastable($key)) {
+            // If an attribute is listed as a "date", we'll convert it from a DateTime
+            // instance into a form proper for storage on the database tables using
+            // the connection grammar's date format. We will auto set the values.
+            $value = $this->fromDateTime($value);
+        }
+
+        if ($value !== null && $this->isJsonCastable($key)) {
+            $value = $this->asJson($value);
+        }
+
+        return $value;
+    }
+
+    protected function isObjectCastable($key)
+    {
+        if ($this->hasCast($key)) {
+            $castClass = $this->getCastType($key, false);
+
+            // This is an collection of type or has namespace
+            if (Str::contains($castClass, ['[]', '\\'])) {
+                return true;
+            }
+
+            return $castClass == Str::studly($castClass) && class_exists($castClass);
+        }
+
+        return false;
+    }
+
+    /**
+     * Transform an attribute from simple type to Model
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @return $this
+     */
+    protected function asObject($key, $value, $collectionClass)
+    {
+        $castClass = $this->getCastType($key, false);
+
+        if (is_callable($castClass)) {
+            $value = $castClass($value, $key);
+        } elseif (Str::endsWith($castClass, '[]')) {
+            if (!$value instanceof $collectionClass) {
+                $className = str_replace('[]', '', $castClass);
+                $value = $collectionClass::makeOf($className, $value);
+            }
+        } elseif (!$value instanceof $castClass) {
+            $value = new $castClass((array) $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Set the date format used by the model.
+     *
+     * @param  string  $format
+     * @return $this
+     */
+    public function setDateFormat($format)
+    {
+        $this->dateFormat = $format;
+
+        return $this;
+    }
 
     /**
      * Prepare a date for array / JSON serialization.
@@ -230,5 +329,18 @@ trait AttributeCastable
      * @param  \DateTimeInterface  $date
      * @return string
      */
-    abstract protected function serializeDate(DateTimeInterface $date);
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format($this->getDateFormat());
+    }
+
+    /**
+     * Get the format for database stored dates.
+     *
+     * @return string
+     */
+    protected function getDateFormat()
+    {
+        return $this->dateFormat;
+    }
 }

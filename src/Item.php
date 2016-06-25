@@ -9,7 +9,7 @@ class Item extends Resource
      *
      * @var array
      */
-    protected static $transforms = [
+    protected static $casts = [
         'category'  => Category::class,
         'price'     => Item\Price::class . '[]', // this is a collection of Price
         'tax'       => Tax::class . '[]', // this a collection of Tax

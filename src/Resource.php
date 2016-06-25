@@ -10,8 +10,10 @@ use Illuminate\Api\Http\Resource as ApiResource;
  */
 abstract class Resource extends ApiResource
 {
+    protected static $filterWith = Support\Filter::class;
+
     use Restable;
-    
+
     public static function first()
     {
         return static::all([

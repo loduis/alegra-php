@@ -6,6 +6,7 @@ use BadMethodCallException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Api\Resource\Model;
+use Illuminate\Api\Resource\Filter;
 use Illuminate\Api\Resource\Collection;
 
 abstract class Resource extends Model
@@ -56,6 +57,20 @@ abstract class Resource extends Model
      */
     public static function request($method, $id = null, $params = [])
     {
+        $method = strtoupper($method);
+
+        // For fix query string parameters
+
+        if ($method == 'GET' && !$params instanceof Filter) {
+            if (method_exists(static::class, 'filterWith')) {
+                $filterObject = static::filterWith();
+            } else {
+                $filterClass  = static::getStaticProperty('filterWith', Filter::class);
+                $filterObject = new $filterClass;
+            }
+            $params     = $filterObject->fill($params);
+        }
+
         $path = static::resolvePath()  . ($id ? "/$id" : '');
 
         return Client::request($method, $path, $params);
