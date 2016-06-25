@@ -9,11 +9,15 @@ class Item extends Resource
      *
      * @var array
      */
-    protected static $casts = [
-        'category'  => Category::class,
-        'price'     => Item\Price::class . '[]', // this is a collection of Price
-        'tax'       => Tax::class . '[]', // this a collection of Tax
-        'inventory' => Item\Inventory::class
+    protected $fillable = [
+        'name'        => 'string',
+        'description' => 'string',
+        'reference'   => 'string',
+        'status'      => 'string',
+        'category'    => Category::class,
+        'price'       => Item\Price::class . '[]', // this is a collection of Price
+        'tax'         => Tax::class . '[]', // this a collection of Tax
+        'inventory'   => Item\Inventory::class
     ];
 
     /**
