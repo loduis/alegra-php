@@ -92,7 +92,11 @@ trait AttributeFillable
      */
     public function fillable($key, $type = 'string')
     {
-        $this->fillable[$key] = $type;
+        if (is_array($key)) {
+            $this->fillable = $key;
+        } else {
+            $this->fillable[$key] = $type;
+        }
 
         return $this;
     }

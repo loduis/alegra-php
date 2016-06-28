@@ -42,7 +42,7 @@ class Contact extends Resource
         'type'             => Collection::class,
         'seller'           => Seller::class,
         'term'             => Term::class,
-        'priceList'        => Price::class,
+        'priceList'        => Contact\PriceList::class,
         'internalContacts' => Collection::class
     ];
 

@@ -4,6 +4,22 @@ namespace Alegra;
 
 class Company extends \Illuminate\Api\Http\Resource
 {
+    protected $fillable = [
+        'name'               => 'string',
+        'identification'     => 'string',
+        'phone'              => 'string',
+        'website'            => 'string',
+        'email'              => 'string',
+        'regime'             => 'string',
+        'currency'           => 'string',
+        'multicurrency'      => 'bool',
+        'decimalPrecision'   => 'int',
+        'invoicePreferences' => 'array',
+        'applicationVersion' => 'string',
+        'registryDate'       => 'datetime',
+        'address'            => Support\Address::class
+    ];
+
     protected static $path = 'company';
 
     /**

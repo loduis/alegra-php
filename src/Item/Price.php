@@ -18,8 +18,9 @@ class Price extends \Illuminate\Api\Resource\Model
      *
      * @var array
      */
-    protected static $casts = [
-        'price' => 'float'
+    protected $fillable = [
+        'price' => 'float',
+        'name'  => 'string'
     ];
 
     /**
@@ -42,13 +43,12 @@ class Price extends \Illuminate\Api\Resource\Model
         if (is_scalar($attributes)) {
             $attributes = [
                 $this->getKeyName() => 1, // this is default price list
-                'price' => $attributes
+                'price'             => $attributes
             ];
         }
 
         parent::__construct($attributes);
     }
-
 
     /**
      * Set mutator of id

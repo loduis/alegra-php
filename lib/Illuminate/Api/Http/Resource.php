@@ -7,10 +7,14 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Api\Resource\Model;
 use Illuminate\Api\Resource\Filter;
+use Illuminate\Api\Resource\Events;
 use Illuminate\Api\Resource\Collection;
+
 
 abstract class Resource extends Model
 {
+    use Events;
+
     /**
      * Create a new resource  instance.
      *
@@ -73,7 +77,9 @@ abstract class Resource extends Model
 
         $path = static::resolvePath()  . ($id ? "/$id" : '');
 
-        return Client::request($method, $path, $params);
+        $response = Client::request($method, $path, $params);
+
+        return static::fireResourceEvent($method, $response);
     }
 
     /**
@@ -171,7 +177,7 @@ abstract class Resource extends Model
     {
         if (preg_match('/(?<=^|;)set([^;]+?)Attribute(;|$)/', $method, $match)) {
             $key = lcfirst($match[1]);
-            return $this->setAttrubute($key, count($params) > 0 ? $params[0] : true);
+            return $this->setAttribute($key, count($params) > 0 ? $params[0] : true);
         }
 
         array_unshift($params, $this);

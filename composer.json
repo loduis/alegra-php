@@ -29,7 +29,8 @@
         "guzzlehttp/guzzle": "^6.2",
         "illuminate/support": "^5.3",
         "nesbot/carbon": "~1.21",
-        "psy/psysh": "@stable"
+        "psy/psysh": "@stable",
+        "league/event": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0",

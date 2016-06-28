@@ -13,29 +13,19 @@ require __DIR__ . '/../vendor/autoload.php';
 (new Dotenv\Dotenv(__DIR__))->load();
 
 // Shortcut to alegra class
-spl_autoload_register(function ($className) {
-   static $wrappers = [
-      'Alegra',
-      'Alegra\\Support'
-   ], $queue = [];
-   foreach ($wrappers as $wrapClass) {
-       $wrapClass = $wrapClass . '\\'. $className;
-       if (isset($queue[$wrapClass])) {
-           continue;
-       }
-       $queue[$wrapClass] = true;
-       if (class_exists($wrapClass)) {
-           unset($queue[$wrapClass]);
-           return class_alias($wrapClass, $className);
-       }
-   }
-}, true);
 
-Api::auth($_ENV['API_USER'], $_ENV['API_KEY']);
+spl_autoload_register(function ($className) {
+    $wrapClass = 'Alegra\\' . $className;
+    if (class_exists($wrapClass)) {
+        class_alias($wrapClass, $className);
+    }
+});
+
+Alegra\Api::auth($_ENV['API_USER'], $_ENV['API_KEY']);
 
 $casterToArray = function ($model) {
     $results = [];
-    foreach ($model->toArray() as $key => $value) {
+    foreach ($model->getAttributes() as $key => $value) {
         $results[Caster::PREFIX_VIRTUAL . $key] = $value;
     }
     return $results;
@@ -51,7 +41,7 @@ $config = new Configuration;
 $config->getPresenter()->addCasters([
     Collection::class => $casterCollection,
     Model::class => $casterToArray,
-    Parameter::class => $casterToArray
+    Filter::class => $casterToArray
 ]);
 $shell = new Shell($config);
 $shell->run();

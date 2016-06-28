@@ -32,6 +32,8 @@ If you use Composer, these dependencies should be handled automatically. If you 
 
 ## Getting Started
 
+Any resource containts five main methods (**All**, **get**, **create**, **save**, **delete**)
+
 Simple usage looks like:
 
 Your composer.json file
@@ -49,68 +51,103 @@ Your test.php script
 ```php
 <?php
 
-use Alegra\Api;
-use Alegra\Contact;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
-
 require './vendor/autoload.php';
 
-Api::auth('Your user', 'Your api token');
+Alegra\Api::auth('Your user', 'Your api token');
+```
 
+**Create** an new resource
+
+```php
+$contact = Alegra\Contact::create(['name' => 'Your contact name']);
+print_r($contact);
+
+// Create using save
+
+$contact = new Alegra\Contact;
+$contact->name = 'My second contact';
+$contact->save(); // Update the contact
+print_r($contact);
+```
+
+**Get** an existing resource
+
+```php
+$contact = Alegra\Contact::get(100); // where 100 is the id of resource.
+$contact->identification = '900.123.123-8';
+$contact->email = 'email@server.com';
+$contact->save();
+print_r($contact);
+```
+
+**Save** an resouce without fetch your data
+
+```php
+
+$contact = new Alegra\Contact(100);
+$contact->email = 'user@server.com';
+$contact->save();
+```
+
+Get **all** resources
+
+```php
+$contacts = Alegra\Contact::all();
+$contacts->each(function ($contact) {
+    print_r($contact);
+});
+
+// $contacts is instanceof Illuminate\Support\Collection
+// You can use methods like
+print_r($contacts->slice(0, 3)); // The three first contacts.
+```
+
+**Delete** an resource
+
+```php
+// Get a delete
+
+Alegra\Contact::get(1)->delete();
+
+// Delete without fetch data
+
+(new Alegra\Contact(1))->delete();
+
+// Delete using static interface
+
+Alegra\Contact::delete(1);
+```
+
+Catch errors
+
+```php
 try {
-    // Save using create method
+    // Your request code
+}
 
-    $contact = Contact::create(['name' => 'Your contact name']); // Create the contact
-    print_r($contact);
+// Exception when a client error is encountered (4xx codes)
 
-    // Save using constructor
-    $contact = new Contact;
-    $contact->name = 'My second contact';
-    $contact->save(); // Update the contact
-    print_r($contact);
-
-    // Update an existing contact
-
-    $contact = Contact::get(1); // where 1 is the id of resource.
-    $contact->identification = '900.123.123-8';
-    $contact->email = 'email@server.com';
-    $contact->save();
-    print_r($contact);
-
-    // Get all contacts
-
-    $contacts = Contact::all();
-    $contacts->each(function ($contact) {
-        print_r($contact);
-    });
-
-    // Get a delete
-
-    Contact::get(1)->delete();
-
-    // Delete without get
-
-    (new Contact(1))->delete();
-
-    // Delete using static interface
-
-    Contact::delete(1);
-
-} catch (ClientException $e) { // 4.x
-    // code
-} catch (ServerException $e) { // 5.x
-    // code
-} catch (ConnectException $e) {
-    // code
-} catch (RequestException $e) {
-    // code
-} catch (Exception $e) {
+catch (GuzzleHttp\Exception\ClientException $e) {
     // code
 }
 
+// Exception when a server error is encountered (5xx codes)
+
+catch (GuzzleHttp\Exception\ServerException $e) {
+    // code
+}
+
+// Exception thrown when a connection cannot be established.
+
+catch (GuzzleHttp\Exception\ConnectException $e) {
+    // code
+}
+
+// Other exceptions
+
+catch (Exception $e) {
+    // code
+}
 
 ```
 
