@@ -32,7 +32,7 @@ If you use Composer, these dependencies should be handled automatically. If you 
 
 ## Getting Started
 
-Any resource containts five main methods (**All**, **get**, **create**, **save**, **delete**)
+Any resource containts five main methods (**all**, **get**, **create**, **save**, **delete**)
 
 Simple usage looks like:
 
