@@ -4,6 +4,11 @@ namespace Alegra;
 
 class Company extends \Illuminate\Api\Http\Resource
 {
+    /**
+     * The fillable fields
+     *
+     * @var array
+     */
     protected $fillable = [
         'name'               => 'string',
         'identification'     => 'string',
@@ -20,6 +25,11 @@ class Company extends \Illuminate\Api\Http\Resource
         'address'            => Support\Address::class
     ];
 
+    /**
+     * The resource path
+     *
+     * @var string
+     */
     protected static $path = 'company';
 
     /**

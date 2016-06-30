@@ -53,6 +53,8 @@ class Contact extends Resource
 
     protected static function filterWith()
     {
-        return (new Support\Filter)->fillable('type', 'string');
+        static $filter;
+
+        return $filter ?: $filter = (new Support\Filter)->fillable('type', 'string');
     }
 }

@@ -80,7 +80,7 @@ $contact->save();
 print_r($contact);
 ```
 
-**Save** an resouce without fetch your data
+**Save** an resource without fetch your data
 
 ```php
 

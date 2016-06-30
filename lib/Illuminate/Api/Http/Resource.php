@@ -10,7 +10,6 @@ use Illuminate\Api\Resource\Filter;
 use Illuminate\Api\Resource\Events;
 use Illuminate\Api\Resource\Collection;
 
-
 abstract class Resource extends Model
 {
     use Events;
@@ -66,13 +65,7 @@ abstract class Resource extends Model
         // For fix query string parameters
 
         if ($method == 'GET' && !$params instanceof Filter) {
-            if (method_exists(static::class, 'filterWith')) {
-                $filterObject = static::filterWith();
-            } else {
-                $filterClass  = static::getStaticProperty('filterWith', Filter::class);
-                $filterObject = new $filterClass;
-            }
-            $params     = $filterObject->fill($params);
+            $params = static::filters($params);
         }
 
         $path = static::resolvePath()  . ($id ? "/$id" : '');
@@ -80,6 +73,18 @@ abstract class Resource extends Model
         $response = Client::request($method, $path, $params);
 
         return static::fireResourceEvent($method, $response);
+    }
+
+    protected static function filters($params)
+    {
+        if (method_exists(static::class, 'filterWith')) {
+            $filterObject = static::filterWith();
+        } else {
+            $filterClass  = static::getStaticProperty('filterWith', Filter::class);
+            $filterObject = new $filterClass;
+        }
+
+        return $filterObject->fill($params);
     }
 
     /**

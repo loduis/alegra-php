@@ -5,6 +5,7 @@ namespace Illuminate\Api\Resource;
 use ArrayAccess;
 use JsonSerializable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Traits\AttributeAccess;
@@ -140,6 +141,19 @@ class Filter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         }
 
         return $attributes;
+    }
+
+    /**
+     * Get all items except for those with the specified keys.
+     *
+     * @param  mixed  $keys
+     * @return static
+     */
+    public function except($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        return Arr::except($this->attributes, $keys);
     }
 
     /**

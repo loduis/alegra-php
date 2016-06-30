@@ -32,13 +32,26 @@ trait Events
         return static::fireEvent($eventName, $response);
     }
 
-    protected static function addEvent($eventName, callable $listener)
+    /**
+     * Register a new event
+     *
+     * @param string   $eventName
+     * @param callable $listener
+     */
+    protected static function registerEvent($eventName, callable $listener)
     {
         $hash = static::hashEvent($eventName);
 
         static::$listeners[$hash][] = $listener;
     }
 
+    /**
+     * Fire all events an return the new response
+     *
+     * @param  string            $eventName
+     * @param  ResponseInterface $response
+     * @return ResponseInterface
+     */
     protected static function fireEvent($eventName, ResponseInterface $response)
     {
         $hash = static::hashEvent($eventName);
@@ -55,6 +68,17 @@ trait Events
         return $response;
     }
 
+    /**
+     * Registre any event defined in the class, supported static method like:
+     *
+     * onCreatedResource(ResponseInterface $response)
+     * onUpdateResource(ResponseInterface $response)
+     * onCreatedResource(ResponseInterface $response)
+     * onDeletedResource(ResponseInterface $response)
+     *
+     * @param  string $eventName
+     * @return void
+     */
     protected static function registerResourceEvent($eventName)
     {
         $hash = static::hashEvent($eventName);
@@ -62,12 +86,18 @@ trait Events
             $resourceName = static::class;
             $methodName = 'on' . ucfirst($eventName) . 'Resource';
             if (method_exists($resourceName, $methodName)) {
-                static::$registredEvents[$hash] = true;
-                static::addEvent($eventName, [$resourceName, $methodName]);
+                static::registerEvent($eventName, [$resourceName, $methodName]);
             }
+            static::$registredEvents[$hash] = true;
         }
     }
 
+    /**
+     * Hash an event name
+     *
+     * @param  string $eventName
+     * @return string
+     */
     protected static function hashEvent($eventName = null)
     {
         return md5(static::class . $eventName);
