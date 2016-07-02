@@ -68,10 +68,10 @@ class Filter implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     /**
      * Create a new Eloquent model instance.
      *
-     * @param  array  $attributes
+     * @param  array|object  $attributes
      * @return void
      */
-    public function __construct(array $attributes = [])
+    public function __construct($attributes = [])
     {
         $this->fill($attributes);
     }

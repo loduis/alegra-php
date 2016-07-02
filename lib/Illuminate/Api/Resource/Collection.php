@@ -339,4 +339,14 @@ class Collection extends BaseCollection
 
         return $values;
     }
+
+    /**
+     * Attribute for debug info
+     *
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return $this->all();
+    }
 }

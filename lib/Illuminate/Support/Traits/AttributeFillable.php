@@ -19,10 +19,10 @@ trait AttributeFillable
     /**
      * Fill the model with an array of attributes.
      *
-     * @param  array  $attributes
+     * @param  array|object  $attributes
      * @return $this
      */
-    public function fill(array $attributes = [])
+    public function fill($attributes = [])
     {
         $this->attributes = [];
 
