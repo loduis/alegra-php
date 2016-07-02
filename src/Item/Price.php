@@ -5,6 +5,11 @@ namespace Alegra\Item;
 class Price extends \Illuminate\Api\Resource\Model
 {
     /**
+     * Define collection of this model
+     */
+    const collection = self::class  . '[]';
+
+    /**
      * Primary key
      *
      * @var string

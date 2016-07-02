@@ -194,9 +194,11 @@ class Collection extends BaseCollection
      * @param  mixed  $keys
      * @return static
      */
-    public function only(...$keys)
+    public function only($keys)
     {
-        $dictionary = Arr::only($this->getDictionary(), $this->unPackKeys($keys));
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        $dictionary = Arr::only($this->getDictionary(), $keys);
 
         return new static(array_values($dictionary));
     }
@@ -207,9 +209,11 @@ class Collection extends BaseCollection
      * @param  mixed  $keys
      * @return static
      */
-    public function except(...$keys)
+    public function except($keys)
     {
-        $dictionary = Arr::except($this->getDictionary(), $this->unPackKeys($keys));
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        $dictionary = Arr::except($this->getDictionary(), $keys);
 
         return new static(array_values($dictionary));
     }
@@ -262,11 +266,13 @@ class Collection extends BaseCollection
     /**
      * Zip the collection together with one or more arrays.
      *
-     * @param  mixed ...$items
+     * @param  mixed $items
      * @return \Illuminate\Support\Collection
      */
-    public function zip(...$items)
+    public function zip($items)
     {
+        $items = is_array($items) ? $items : func_get_args();
+
         return call_user_func_array([$this->toBase(), 'zip'], $items);
     }
 
@@ -329,15 +335,6 @@ class Collection extends BaseCollection
         }
 
         return $items;
-    }
-
-    private function unPackKeys($values)
-    {
-        if (count($values) === 1 && is_array($values[0])) {
-            $values = current($values);
-        }
-
-        return $values;
     }
 
     /**

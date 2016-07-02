@@ -15,8 +15,8 @@ class Item extends Resource
         'reference'   => 'string',
         'status'      => 'string',
         'category'    => Category::class,
-        'price'       => Item\Price::class . '[]', // this is a collection of Price
-        'tax'         => Tax::class . '[]', // this a collection of Tax
+        'price'       => Item\Price::collection, // this is a collection of Price
+        'tax'         => Tax::collection, // this a collection of Tax
         'inventory'   => Item\Inventory::class
     ];
 
