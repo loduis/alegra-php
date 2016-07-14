@@ -2,12 +2,16 @@
 
 namespace Alegra\Tests\Handlers;
 
+use Alegra\Seller;
 use Alegra\Contact;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Illuminate\Api\Testing\Handlers\ResponseHandler;
 
 class PostContactHandler
 {
-    public function __invoke(RequestInterface $request, array &$options)
+    public static function requestHandle(RequestInterface $request, array &$options)
     {
         $params = $options['json'];
 
@@ -18,12 +22,27 @@ class PostContactHandler
 
         // type unknow
         if (array_has($params, 'type') && count($params['type']) == 1) {
-            $type = current($params['type']);
-            if (!in_array($type, [Contact::TYPE_CLIENT, Contact::TYPE_PROVIDER])) {
-                $type = null;
+            $types = (array) $params['type'];
+            foreach ($types as $index => $type) {
+                if (!in_array($type, [Contact::TYPE_CLIENT, Contact::TYPE_PROVIDER])) {
+                    unset($types[$index]);
+                }
             }
-            $params['type'] = (array) $type;
+            $params['type'] = $types;
             $options['json'] = $params;
         }
+    }
+
+    public static function responseHandle(ResponseInterface $response)
+    {
+        $handler = new ResponseHandler($response);
+        $body = $handler->toArray();
+
+        if ($sellerId = Arr::get($body, 'seller.id')) {
+            $body['seller'] = Seller::get($sellerId)->toArray();
+            $handler->setBody($body);
+        }
+
+        return $handler->getResponse();
     }
 }

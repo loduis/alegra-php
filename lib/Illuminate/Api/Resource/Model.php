@@ -241,6 +241,9 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     protected function getArrayableVisibleAttributes()
     {
         $visible   = static::getStaticProperty('visible', []);
+        if ($visible == ['*']) {
+            return $this->getArrayableAttributes();
+        }
         $visible[] = $this->getKeyName();
         $visible   = array_unique($visible);
 
@@ -269,5 +272,59 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
         $this->attributes[$key] = $this->castSetAttribute($key, $value, Collection::class);
 
         return $this;
+    }
+
+    /**
+     * Dynamically handle calls to the class.
+     *
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    public static function __callStatic($method, $params)
+    {
+        return static::callMacro(static::class, $method, $params);
+    }
+
+    /**
+     * Dynamically handle calls to the class.
+     *
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    public function __call($method, $params)
+    {
+        if (preg_match('/(?<=^|;)set([^;]+?)(;|$)/', $method, $match)) {
+            $key = lcfirst($match[1]);
+            $value = count($params) > 0 ? $params[0] : true;
+            if ($this->hasSetMutator($key)) {
+                return $this->mutatingAttribute($key, $value);
+            }
+            return $this->setAttribute($key, $value);
+        }
+
+        array_unshift($params, $this);
+
+        return static::callMacro($this, $method, $params);
+    }
+
+    /**
+     * Call a raw method
+     *
+     * @param  static|$this $objectOrClass
+     * @param  string $method
+     * @param  array $params
+     * @return mixed
+     */
+    private static function callMacro($objectOrClass, $method, $params)
+    {
+        $method = 'macro' . ucfirst($method) . 'Handler';
+
+        if (!method_exists($objectOrClass, $method)) {
+            throw new BadMethodCallException("Method {$method} does not exist.");
+        }
+
+        return call_user_func_array([$objectOrClass, $method], $params);
     }
 }

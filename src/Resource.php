@@ -20,7 +20,7 @@ abstract class Resource extends ApiResource
 
     public static function first()
     {
-        return static::all(['limit' => 1]);
+        return static::all(['limit' => 1])->first();
     }
 
     final public static function onDeletedResource($response)

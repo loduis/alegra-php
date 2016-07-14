@@ -2,9 +2,11 @@
 
 namespace Alegra\Tests;
 
+use Alegra\Client;
+use Alegra\Seller;
 use Alegra\Contact;
 use Alegra\Provider;
-use Alegra\Client;
+use Alegra\Contact\Internal as InternalContact;
 use Illuminate\Api\Resource\Collection;
 use Illuminate\Support\Collection as BaseCollection;
 
@@ -139,6 +141,66 @@ class ContactTest extends TestCase
         $this->assertInstanceOf(BaseCollection::class, $contact->type);
     }
 
+    public function testShouldAssignAndSellerToContact()
+    {
+        $contact = new Contact(['name' => 'test']);
+        $contact->seller = Seller::first();
+        $contact->save();
+        $this->assertInstanceOf(Seller::class, $contact->seller);
+        $this->assertInternalType('int', $contact->seller->id);
+        $this->assertInternalType('string', $contact->seller->name);
+        $this->assertInternalType('string', $contact->seller->identification);
+        $this->assertInternalType('string', $contact->seller->status);
+    }
+
+    public function testShouldAssignAndInternalContactsToContact()
+    {
+        $contact = new Contact(['name' => 'test']);
+        $contact->internalContacts->add([
+            'name' => 'Internal contact'
+        ]);
+        $contact->save();
+
+        $this->assertInstanceOf(Collection::class, $contact->internalContacts);
+        $this->assertCount(1, $contact->internalContacts);
+        $contact->internalContacts->each(function ($contact) {
+            $this->assertInstanceOf(InternalContact::class, $contact);
+            $this->assertInternalType('string', $contact->name);
+        });
+
+        $contact = Contact::create(['name' => 'other']);
+        $contact->internalContacts[] = [
+            'name' => 'Using array notation, first'
+        ];
+        $contact->internalContacts[] = [
+            'name' => 'Using array notation, second'
+        ];
+        $contact->save();
+        $this->assertCount(2, $contact->internalContacts);
+
+        $contact = Contact::create(['name' => 'Other']);
+        $contact->internalContacts = [
+            'name' => 'Set as array'
+        ];
+
+        $this->assertInstanceOf(Collection::class, $contact->internalContacts);
+        $this->assertCount(1, $contact->internalContacts);
+        $contact->internalContacts->each(function ($contact) {
+            $this->assertInstanceOf(InternalContact::class, $contact);
+            $this->assertInternalType('string', $contact->name);
+        });
+
+        $contact = new Contact(['name' => 'Other']);
+        $contact->internalContacts = 'Set name of the contact';
+
+        $this->assertInstanceOf(Collection::class, $contact->internalContacts);
+        $this->assertCount(1, $contact->internalContacts);
+        $contact->internalContacts->each(function ($contact) {
+            $this->assertInstanceOf(InternalContact::class, $contact);
+            $this->assertInternalType('string', $contact->name);
+        });
+    }
+
     public function testGet()
     {
         $contact = new Contact([
@@ -163,7 +225,6 @@ class ContactTest extends TestCase
         $this->assertSame('Provider', $createdContact->name);
         $this->assertSame($contact->id, $createdContact->id);
     }
-
 
     public function testAll()
     {

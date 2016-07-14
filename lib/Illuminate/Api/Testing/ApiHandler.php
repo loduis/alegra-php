@@ -2,8 +2,8 @@
 
 namespace Illuminate\Api\Testing;
 
+use ReflectionClass;
 use ReflectionMethod;
-use ReflectionFunction;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
@@ -105,13 +105,31 @@ class ApiHandler
     /**
      * Register request handler
      *
-     * @param  [type]   $expresion
-     * @param  callable $callback
-     * @return [type]
+     * @param  string   $message
+     * @param  string|callable $handler
+     * @return $this
      */
-    public function request($message, callable $callback)
+    public function request($message, $handler)
     {
-        if (!is_callable($callback, false, $callableName)) {
+        if (is_string($handler)) {
+            if (Str::contains($handler, '@')) {
+                list($class, $method) = explode('@', $handler);
+                $method = (new ReflectionClass($class))->getMethod($method);
+                $handler = $this->getCallable($method);
+            } elseif (class_exists($handler)) {
+                $reflection = new ReflectionClass($handler);
+                if ($reflection->hasMethod('__invoke')) {
+                    $handler = new $handler;
+                } else {
+                    foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                        $this->request($message, $this->getCallable($method));
+                    }
+                    return $this;
+                }
+            }
+        }
+
+        if (!is_callable($handler, false, $callableName)) {
             throw new InvalidArgumentException('The callback parameter is not callable');
         }
 
@@ -122,14 +140,32 @@ class ApiHandler
             $parameters = $reflection->getParameters();
             $interface = $parameters[0]->getClass();
             if ($interface->name === ResponseInterface::class) {
-                $this->responseCallable->put($message, $callback);
+                $this->responseCallable->put($message, $handler);
                 return $this;
             }
         }
 
-        $this->requestCallable->put($message, $callback);
+        $this->requestCallable->put($message, $handler);
 
         return $this;
+    }
+
+    /**
+     * Get callable fro ReflectionMethod
+     *
+     * @param  ReflectionMethod $method
+     * @return callable
+     */
+    protected function getCallable(ReflectionMethod $method)
+    {
+        $class = $method->getDeclaringClass();
+        if ($method->isStatic()) {
+            $handler = [$class->getName(), $method->getName()];
+        } else {
+            $handler = [$class->newInstance(), $method->getName()];
+        }
+
+        return $handler;
     }
 
     /**
@@ -320,16 +356,5 @@ class ApiHandler
     public function createResponse($status, $resource = [])
     {
         return new Response($status, ['Content-Type' => 'application/json'], json_encode($resource, JSON_PRETTY_PRINT));
-    }
-
-    public function createError($code, $request, $message = null)
-    {
-        if (is_array($message)) {
-            $message = json_encode($message);
-        }
-        return RequestException::create(
-            $request,
-            new Response($code, ['Content-Type' => 'application/json'], $message)
-        );
     }
 }

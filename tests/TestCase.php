@@ -3,14 +3,9 @@
 namespace Alegra\Tests;
 
 use Alegra\Api;
-use Alegra\Contact;
 use Faker\Factory as Faker;
-use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Api\Testing\ApiHandler;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Illuminate\Api\Testing\TestCase as ApiTestCase;
 
 /**
@@ -19,6 +14,11 @@ use Illuminate\Api\Testing\TestCase as ApiTestCase;
  */
 abstract class TestCase extends ApiTestCase
 {
+    /**
+     * Faker quick helper instance
+     *
+     * @var [type]
+     */
     protected $faker;
 
     protected function setUp()
@@ -34,8 +34,8 @@ abstract class TestCase extends ApiTestCase
         if ($mode !== 'live') {
             if (!$handler) {
                 $handler = ApiHandler::create(__DIR__ . '/schemas')
-                    ->request('POST /contacts', new Handlers\PostContactHandler)
-                    ->request('POST /items', new Handlers\PostItemHandler);
+                    ->request('POST /contacts', Handlers\PostContactHandler::class)
+                    ->request('POST /items', Handlers\PostItemHandler::class);
             }
             $stack = HandlerStack::create($handler);
             Api::clientOptions([
