@@ -24,8 +24,7 @@ then
   git tag -a $VERSION -m "[release] $VERSION"
 
   # publish
-  git push origin refs/tags/v$VERSION
-  git push
+  git push origin master --follow-tags
 
   cd -
 fi
