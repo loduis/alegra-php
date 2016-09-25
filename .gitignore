@@ -6,3 +6,4 @@ composer.lock
 /vendor/
 /schemas/
 /bin/
+node_modules
