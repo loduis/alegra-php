@@ -21,6 +21,7 @@ then
   # commit
   git add -A
   git commit -m "[build] $VERSION"
+  git tag -a $VERSION -m "[release] $VERSION"
 
   # publish
   git push origin refs/tags/v$VERSION
