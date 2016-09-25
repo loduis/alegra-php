@@ -6,7 +6,9 @@ use Alegra\Client;
 use Alegra\Seller;
 use Alegra\Contact;
 use Alegra\Provider;
+use Alegra\Support\Address;
 use Alegra\Contact\Internal as InternalContact;
+use Alegra\Application;
 use Illuminate\Api\Resource\Collection;
 use Illuminate\Support\Collection as BaseCollection;
 
@@ -20,11 +22,11 @@ class ContactTest extends TestCase
     }
 
     /**
-     * @itest
+     * Puege account on live run
      *
-     * @return [type]
+     * @afterClass
      */
-    public function destroyAll()
+    public static function destroyAll()
     {
         Contact::all()->except(1, 2, 3)->each(function ($contact) {
             $contact->delete();
@@ -150,10 +152,12 @@ class ContactTest extends TestCase
         $this->assertInternalType('int', $contact->seller->id);
         $this->assertInternalType('string', $contact->seller->name);
         $this->assertInternalType('string', $contact->seller->identification);
-        $this->assertInternalType('string', $contact->seller->status);
+        $this->assertInternalType('string', $contact->seller->observations);
+
+        // $this->assertInternalType('string', $contact->seller->status);
     }
 
-    public function testShouldAssignAndInternalContactsToContact()
+    public function testShouldAssignAndInternalContactsAttribute()
     {
         $contact = new Contact(['name' => 'test']);
         $contact->internalContacts->add([
@@ -199,6 +203,17 @@ class ContactTest extends TestCase
             $this->assertInstanceOf(InternalContact::class, $contact);
             $this->assertInternalType('string', $contact->name);
         });
+    }
+
+    public function testShouldAssignAttributeAddress()
+    {
+        Application::version('mexico');
+        $contact = new Contact(['name' => 'test']);
+
+        $contact->address = 'Calle 10 # 55-31';
+        $this->assertInstanceOf(Address::class, $contact->address);
+        $this->assertEquals($contact->address->address, 'Calle 10 # 55-31');
+        $contact->save();
     }
 
     public function testGet()

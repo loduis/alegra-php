@@ -306,7 +306,7 @@ trait AttributeCastable
                 $value = $collectionClass::makeOf($className, $value);
             }
         } elseif (!$value instanceof $castClass) {
-            $value = new $castClass((array) $value);
+            $value = new $castClass($value === null ? [] : $value);
         }
 
         return $value;

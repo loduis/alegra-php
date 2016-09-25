@@ -2,11 +2,13 @@
 
 namespace Illuminate\Api\Testing;
 
+use PHPUnit\Framework\TestCase as BaseTest;
+
 /**
  * Base class for Alegra test cases, provides some utility methods for creating
  * objects.
  */
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class TestCase extends BaseTest
 {
     protected function assertPrivate($class, $method)
     {

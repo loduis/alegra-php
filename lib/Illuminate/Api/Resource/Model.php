@@ -63,7 +63,7 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     use AttributeFillable;
 
     /**
-     * Create a new Eloquent model instance.
+     * Create a new Resource model instance.
      *
      * @param  array  $attributes
      * @return void
@@ -240,7 +240,9 @@ class Model implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      */
     protected function getArrayableVisibleAttributes()
     {
-        $visible   = static::getStaticProperty('visible', []);
+        $visible   = method_exists(static::class, 'visible') ?
+            static::visible() :
+            static::getStaticProperty('visible', []);
         if ($visible == ['*']) {
             return $this->getArrayableAttributes();
         }
