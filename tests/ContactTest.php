@@ -233,6 +233,13 @@ class ContactTest extends TestCase
         $this->assertEquals($contact->address->city, 'Bogota');
     }
 
+    public function testShouldAssignAttributeTerm()
+    {
+        $this->markTestIncomplete(
+          'No hay soporte para los terminos de pagos en el api.'
+        );
+    }
+
     public function testGet()
     {
         $contact = new Contact([
