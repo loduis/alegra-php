@@ -1,0 +1,10 @@
+{
+  "version": "0.18.8",
+  "devDependencies": {
+    "git-release": "^0.6.0"
+  },
+  "scripts": {
+    "test": "./bin/phpunit",
+    "build": "release"
+  }
+}
