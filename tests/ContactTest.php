@@ -214,6 +214,23 @@ class ContactTest extends TestCase
         $this->assertInstanceOf(Address::class, $contact->address);
         $this->assertEquals($contact->address->address, 'Calle 10 # 55-31');
         $contact->save();
+
+        $contact->address = [
+            'address' => 'Calle 10 # 55-31',
+            'city' => 'Bogota'
+        ];
+        $contact->save();
+        $this->assertEquals($contact->address->address, 'Calle 10 # 55-31');
+        $this->assertEquals($contact->address->city, 'Bogota');
+
+        $contact->address = new Address([
+            'address' => 'Calle 10 # 55-31',
+            'city' => 'Bogota'
+        ]);
+        $contact->save();
+
+        $this->assertEquals($contact->address->address, 'Calle 10 # 55-31');
+        $this->assertEquals($contact->address->city, 'Bogota');
     }
 
     public function testGet()
