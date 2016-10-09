@@ -4,6 +4,10 @@ namespace Alegra;
 
 class Seller extends Resource
 {
+    const STATUS_ACTIVE = 'active';
+
+    const STATUS_INACTIVE = 'inactive';
+
     /**
      * Adds the ability to simulate filters
      */
