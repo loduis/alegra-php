@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "Honorarios y comisiones",
+    "percentage": "11.00",
+    "description": "Retención aplicada a personas jurídicas",
+    "type": "FUENTE"
+  },
+  {
+    "id": "2",
+    "name": "Compras",
+    "percentage": "3.50",
+    "description": "Retención aplicada a compras cuyo valor es igual o superior a $703,000 pesos",
+    "type": "FUENTE"
+  },
+  {
+    "id": "3",
+    "name": "ReteIVA",
+    "percentage": "15.00",
+    "description": "Retención sobre el total del IVA asociado a una factura",
+    "type": "IVA"
+  },
+  {
+    "id": "5",
+    "name": "ReteCREE",
+    "percentage": "0.30",
+    "description": "",
+    "type": "CREE"
+  },
+  {
+    "id": "10",
+    "name": "ReteCREE",
+    "percentage": "1.50",
+    "description": "",
+    "type": "CREE"
+  },
+  {
+    "id": "12",
+    "name": "retecree nueva ",
+    "percentage": "0.60",
+    "description": "",
+    "type": "CREE"
+  }
+]

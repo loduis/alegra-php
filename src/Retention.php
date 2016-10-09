@@ -5,19 +5,12 @@ namespace Alegra;
 class Retention extends Resource
 {
     /**
-     * Adds the ability to simulate filters
+     * Define collection of this model
      */
-    use Support\Filter\Emulated;
+    const collection = self::class  . '[]';
 
     /**
-     * Create a new filter instance
-     *
-     * @return \Illuminate\Api\Resource\Filter
+     * Add ability for support taxable type
      */
-    protected static function filterWith()
-    {
-        static $filter;
-
-        return $filter ?: $filter = (new Support\Filter)->fillable('type', 'string');
-    }
+    use Support\Taxable;
 }
