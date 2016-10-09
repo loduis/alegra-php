@@ -1,0 +1,26 @@
+[
+  {
+    "id" : "3",
+    "idParent" : "1",
+    "name" : "Ventas",
+    "description" : "Bajo Esta categoría se encuentran todos los ingresos principales.",
+    "type" : "income",
+    "readOnly" : false
+   },
+   {
+     "id" : "15",
+     "idParent" : "3",
+     "name" : "Computadores",
+     "description" : "Categoría de venta de computadores",
+     "type" : "income",
+     "readOnly" : false
+    },
+    {
+    "id" : "25",
+    "idParent" : "",
+    "name" : "Compras inventariables",
+    "description" : "",
+    "type" : "expense",
+    "readOnly" : true
+    }
+]

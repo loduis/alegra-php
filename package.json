@@ -5,6 +5,7 @@
   },
   "scripts": {
     "test": "./bin/phpunit",
-    "build": "release"
+    "build": "release",
+    "console": "php tests/console"
   }
 }
