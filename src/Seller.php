@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Seller extends Resource
+final class Seller extends Resource
 {
     const STATUS_ACTIVE = 'active';
 

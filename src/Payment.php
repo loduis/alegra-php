@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Payment extends Resource
+final class Payment extends Resource
 {
     /**
      * Add ability for support metadata

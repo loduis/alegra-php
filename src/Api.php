@@ -2,7 +2,6 @@
 
 namespace Alegra;
 
-use BadMethodCallException;
 use Illuminate\Api\Http\Api as HttpApi;
 
 class Api

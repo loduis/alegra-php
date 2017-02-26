@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Category extends Resource
+final class Category extends Resource
 {
     const TYPE_INCOME    = 'income';
 

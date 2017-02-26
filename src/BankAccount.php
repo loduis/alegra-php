@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class BankAccount extends Resource
+final class BankAccount extends Resource
 {
     /**
      * Adds the ability to simulate filters

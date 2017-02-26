@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Invoice extends Resource
+final class Invoice extends Resource
 {
     /**
      * Add ability for support of send email

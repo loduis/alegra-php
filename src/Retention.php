@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Retention extends Resource
+final class Retention extends Resource
 {
     /**
      * Define collection of this model

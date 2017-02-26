@@ -4,7 +4,6 @@ use Illuminate\Api\Resource\Filter;
 
 class SupportFluentTest extends PHPUnit_Framework_TestCase
 {
-
     public function testAttributesAreSetByConstructor()
     {
         $array = ['name' => 'Taylor', 'age' => 25];

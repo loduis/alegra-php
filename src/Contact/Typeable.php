@@ -23,7 +23,6 @@ trait Typeable
 
     public static function create($params = [])
     {
-
         static::useDefaultType($params);
 
         return parent::create($params);

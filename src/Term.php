@@ -2,6 +2,6 @@
 
 namespace Alegra;
 
-class Term extends Resource
+final class Term extends Resource
 {
 }

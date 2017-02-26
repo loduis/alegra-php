@@ -2,8 +2,6 @@
 
 namespace Alegra;
 
-use Illuminate\Support\Str;
-
 final class Application
 {
     const VERSION_COLOMBIA = 'colombia';

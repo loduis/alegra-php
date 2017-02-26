@@ -122,7 +122,6 @@ class ItemTest extends TestCase
         $item->save();
         $this->assertInstanceOf(Inventory::class, $item->inventory);
         $this->assertInternalType('float', $item->inventory->initialQuantity);
-
     }
 
     public function testAll()

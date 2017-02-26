@@ -5,7 +5,7 @@ namespace Alegra;
 /**
  * Class for manage quotes
  */
-class Quote extends Resource
+final class Quote extends Resource
 {
     /**
      * Resource path

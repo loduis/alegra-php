@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class NumberTemplate extends Resource
+final class NumberTemplate extends Resource
 {
     /**
      * Adds the ability to simulate filters

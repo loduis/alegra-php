@@ -4,9 +4,7 @@ namespace Alegra;
 
 use GuzzleHttp\Psr7;
 use Illuminate\Support\Arr;
-use UnexpectedValueException;
 use Illuminate\Api\Http\Restable;
-use Psr\Http\Message\ResponseInterface;
 use Illuminate\Api\Http\Resource as ApiResource;
 
 /**

@@ -8,12 +8,8 @@ use Illuminate\Support\Arr;
  * adds the ability to appeal to be sent by email
  *
  * @method bool send(array $options)
- * @method bool send(...$emails)
  * @method bool static send($resource, array $options)
- * @method bool static send($resource, ...$emails)
- *
- * @method Mail mail()
- * @method Mail mail($resource)
+ * @method Mail mail($resource = null)
  */
 trait Mailable
 {

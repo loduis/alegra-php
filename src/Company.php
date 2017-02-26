@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Company extends \Illuminate\Api\Http\Resource
+final class Company extends \Illuminate\Api\Http\Resource
 {
     /**
      * The fillable fields

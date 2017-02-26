@@ -5,7 +5,7 @@ namespace Alegra\Support;
 use Illuminate\Api\Http\Resource;
 
 /**
- * User Friendly emal handle.
+ * User Friendly email handler.
  */
 class Mail
 {

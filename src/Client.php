@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Client extends Contact
+final class Client extends Contact
 {
     /**
      * Define a contact type client

@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Tax extends Resource
+final class Tax extends Resource
 {
     /**
      * Define collection of this model

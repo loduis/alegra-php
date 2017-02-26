@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Item extends Resource
+final class Item extends Resource
 {
     /**
      * Transform attributes when receive the resource

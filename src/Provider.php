@@ -2,7 +2,7 @@
 
 namespace Alegra;
 
-class Provider extends Contact
+final class Provider extends Contact
 {
     /**
      * Define a contact type provider

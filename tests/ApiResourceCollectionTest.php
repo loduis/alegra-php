@@ -229,7 +229,6 @@ class ApiResourceCollectionTest extends TestCase
         $this->assertEquals(get_class($a->zip(['a', 'b'], ['c', 'd'])), BaseCollection::class);
         $this->assertEquals(get_class($b->flip()), BaseCollection::class);
     }
-
 }
 
 class TestEloquentCollectionModel extends Model
