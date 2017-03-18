@@ -1,21 +1,24 @@
 {
-  "name" : "Mi empresa en Alegra",
-  "identification" : "900.123.123-8",
-  "phone" : "310 111 11 11",
-  "website" : "www.alegra.com",
-  "email" : "soporte@alegra.com",
-  "regime" : "Régimen común",
-  "currency" : "COP",
-  "multicurrency" : true,
-  "decimalPrecision" : 0,
-  "address" : {
-    "address" : "Dirección de mi oficina",
-    "city" : "Mi ciudad"
+  "name": "Ruben Vanegas",
+  "identification": "dsda",
+  "phone": "",
+  "website": "",
+  "email": "loduis@gmail.com",
+  "regime": "Régimen simplificado",
+  "currency": {
+    "code": "COP",
+    "symbol": "$"
   },
+  "multicurrency": true,
+  "decimalPrecision": 4,
   "invoicePreferences": {
-    "defaultAnotation": "Notas de mi factura",
-    "defaultTermsAndConditions": "Esta factura se asimila en todos sus efectos a una letra      de cambio de conformidad con el Art. 774 del código de comercio. Autorizo que en caso de     incumplimiento de esta obligación sea reportado a las centrales de riesgo, se cobraran     intereses por mora."
+    "defaultAnotation": "",
+    "defaultTermsAndConditions": "Esta factura se asimila en todos sus efectos a una letra de cambio de conformidad con el Art. 774 del código de comercio. Autorizo que en caso de incumplimiento de esta obligación sea reportado a las centrales de riesgo, se cobraran intereses por mora."
   },
   "applicationVersion": "colombia",
-  "registryDate": "2016-02-27 14:15:08"
+  "registryDate": "2013-10-26 11:56:47",
+  "address": {
+    "address": "Cambia la dir",
+    "city": "bogota"
+  }
 }

@@ -1,26 +1,55 @@
 [
   {
-    "id" : "3",
-    "idParent" : "1",
-    "name" : "Ventas",
-    "description" : "Bajo Esta categoría se encuentran todos los ingresos principales.",
-    "type" : "income",
-    "readOnly" : false
-   },
-   {
-     "id" : "15",
-     "idParent" : "3",
-     "name" : "Computadores",
-     "description" : "Categoría de venta de computadores",
-     "type" : "income",
-     "readOnly" : false
-    },
-    {
-    "id" : "25",
-    "idParent" : "",
-    "name" : "Compras inventariables",
-    "description" : "",
-    "type" : "expense",
-    "readOnly" : true
-    }
+    "id": 7,
+    "type": "other",
+    "description": "Bajo esta categoría se ubican todas las transferencias que se hagan entre bancos de la empresa",
+    "children": [],
+    "readOnly": true,
+    "name": "Transferencias bancarias"
+  },
+  {
+    "id": 1,
+    "type": "income",
+    "description": "Bajo esta categoría se encuentran todos los tipos de ingresos.",
+    "children": [
+    ],
+    "readOnly": true,
+    "name": "Ingresos"
+  },
+  {
+    "id": 2,
+    "type": "expense",
+    "description": "Bajo esta categoría se encuentran todos los tipos de egresos.",
+    "children": [
+    ],
+    "readOnly": true,
+    "name": "Egresos"
+  },
+  {
+    "id": 11,
+    "type": "asset",
+    "description": "Bajo esta categoría se encuentran los activos que tiene la empresa",
+    "children": [
+    ],
+    "readOnly": true,
+    "name": "Activos"
+  },
+  {
+    "id": 12,
+    "type": "liability",
+    "description": "Bajo esta categoría se encuentran los pasivos de la empresa",
+    "children": [
+    ],
+    "readOnly": true,
+    "name": "Pasivos"
+  },
+  {
+    "id": 13,
+    "type": "equity",
+    "description": "Bajo esta categoría se encuentra el patrimonio de la empresa",
+    "children": [
+    ],
+    "readOnly": true,
+    "name": "Patrimonio"
+  }
 ]
