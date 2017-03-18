@@ -11,6 +11,7 @@ final class Item extends Resource
      */
     protected $fillable = [
         'name'        => 'string',
+        'type'        => 'string',
         'description' => 'string',
         'reference'   => 'string',
         'status'      => 'string',

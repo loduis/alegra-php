@@ -25,7 +25,8 @@ class Price extends \Illuminate\Api\Resource\Model
      */
     protected $fillable = [
         'price' => 'float',
-        'name'  => 'string'
+        'name'  => 'string',
+        'type'  => 'string'
     ];
 
     /**
@@ -48,7 +49,8 @@ class Price extends \Illuminate\Api\Resource\Model
         if (is_scalar($attributes)) {
             $attributes = [
                 $this->getKeyName() => 1, // this is default price list
-                'price'             => $attributes
+                'price'             => $attributes,
+                'type'              => 'amount'
             ];
         }
 

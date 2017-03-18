@@ -10,7 +10,8 @@
     "price": [
         {
             "idPriceList": null,
-            "name": "Principal",
+            "name": "General",
+            "type": "amount",
             "price": null
         }
     ],
