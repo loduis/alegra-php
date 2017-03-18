@@ -4,6 +4,8 @@ namespace Alegra;
 
 final class Category extends Resource
 {
+    const collection = self::class  . '[]';
+
     const TYPE_INCOME    = 'income';
 
     const TYPE_EXPENSE   = 'expense';
@@ -20,7 +22,7 @@ final class Category extends Resource
     use Support\Filter\Emulated;
 
     protected static $casts = [
-        'idParent' => 'int',
+        'children' => self::collection,
         'readOnly' => 'bool'
     ];
 

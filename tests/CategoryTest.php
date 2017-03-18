@@ -3,6 +3,7 @@
 namespace Alegra\Tests;
 
 use Alegra\Category;
+use Illuminate\Api\Resource\Collection;
 
 class CategoryTest extends TestCase
 {
@@ -28,7 +29,7 @@ class CategoryTest extends TestCase
     {
         $category = Category::first();
         $this->assertInternalType('int', $category->id);
-        $this->assertInternalType('int', $category->idParent);
+        $this->assertInstanceOf(Collection::class, $category->children);
         $this->assertInternalType('string', $category->name);
         $this->assertInternalType('string', $category->type);
         $this->assertInternalType('string', $category->description);
