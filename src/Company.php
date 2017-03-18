@@ -16,7 +16,7 @@ final class Company extends \Illuminate\Api\Http\Resource
         'website'            => 'string',
         'email'              => 'string',
         'regime'             => 'string',
-        'currency'           => 'string',
+        'currency'           => Support\Currency::class,
         'multicurrency'      => 'bool',
         'decimalPrecision'   => 'int',
         'invoicePreferences' => 'array',
