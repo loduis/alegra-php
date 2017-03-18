@@ -11,14 +11,14 @@ class Api
      *
      * @var int
      */
-    const VERSION  = 1;
+    const VERSION  = 'v1';
 
     /**
      * The current version of php bindings
      *
      * @var  string
      */
-    const BINDING_VERSION = '0.18.9';
+    const BINDING_VERSION = '0.19.0';
 
     /**
      * Custom options of http client
@@ -37,10 +37,9 @@ class Api
     public static function auth(...$auth)
     {
         HttpApi::auth(...$auth);
-        HttpApi::version(static::VERSION);
-        HttpApi::baseUri(static::BASE_URI . HttpApi::version() . '/');
+        HttpApi::baseUri(static::BASE_URI . static::VERSION . '/');
         $options = static::$clientOptions;
-        $options['headers']['User-Agent'] = 'Alegra/' . HttpApi::version() .
+        $options['headers']['User-Agent'] = 'Alegra/' . static::VERSION .
                                             ' PhpBindings/' . static::BINDING_VERSION;
         HttpApi::createClient($options);
     }

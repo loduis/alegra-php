@@ -31,4 +31,14 @@ abstract class Resource extends ApiResource
 
         return $response->withBody(Psr7\stream_for($data));
     }
+
+    /**
+     * Save the current resource.
+     *
+     * @return $this
+     */
+    public function save()
+    {
+        return $this->store($this->id === null ? 'POST' : 'PUT', $this->id);
+    }
 }

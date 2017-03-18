@@ -29,7 +29,8 @@
         "guzzlehttp/guzzle": "^6.2",
         "illuminate/support": "^5.4",
         "nesbot/carbon": "~1.21",
-        "psy/psysh": "@stable"
+        "psy/psysh": "@stable",
+        "loduis/illuminate-api": "1.0.*"
     },
     "require-dev": {
         "phpunit/phpunit": "5.5.*",
@@ -51,6 +52,12 @@
             "dev-master": "1.0-dev"
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/loduis/illuminate-api.git"
+        }
+    ],
     "prefer-stable": true,
     "minimum-stability": "dev"
 }
