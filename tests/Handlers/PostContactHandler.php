@@ -2,6 +2,7 @@
 
 namespace Alegra\Tests\Handlers;
 
+use Alegra\PriceList;
 use Alegra\Seller;
 use Alegra\Contact;
 use Illuminate\Support\Arr;
@@ -40,6 +41,11 @@ class PostContactHandler
 
         if ($sellerId = Arr::get($body, 'seller.id')) {
             $body['seller'] = Seller::get($sellerId)->toArray();
+            $handler->setBody($body);
+        }
+
+        if ($priceListId = Arr::get($body, 'priceList.id')) {
+            $body['priceList'] = PriceList::get($priceListId)->toArray();
             $handler->setBody($body);
         }
 

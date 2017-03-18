@@ -12,6 +12,10 @@
         "address": null,
         "city": null
     },
+    "priceList": {
+        "id": null,
+        "name": null
+    },
     "type": [],
     "internalContacts": []
 }

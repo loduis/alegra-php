@@ -3,6 +3,7 @@
 namespace Alegra\Tests;
 
 use Alegra\Client;
+use Alegra\PriceList;
 use Alegra\Seller;
 use Alegra\Contact;
 use Alegra\Provider;
@@ -231,6 +232,16 @@ class ContactTest extends TestCase
 
         $this->assertEquals($contact->address->address, 'Calle 10 # 55-31');
         $this->assertEquals($contact->address->city, 'Bogota');
+    }
+
+    public function testShouldAssignAttributePriceList()
+    {
+        $contact = new Contact(['name' => 'test']);
+        $contact->priceList = PriceList::first();
+        $contact->save();
+        $this->assertInstanceOf(PriceList::class, $contact->priceList);
+        $this->assertInternalType('int', $contact->priceList->id);
+        $this->assertInternalType('string', $contact->priceList->name);
     }
 
     public function testShouldAssignAttributeTerm()
