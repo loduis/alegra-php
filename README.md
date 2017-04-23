@@ -11,7 +11,7 @@ PHP 5.6.11 and later.
 You can install the bindings via [Composer](http://getcomposer.org/). Run the following command:
 
 ```bash
-composer require loduis/alegra-php
+composer require "loduis/alegra-php:@dev"
 ```
 
 To use the bindings, use Composer's [autoload](https://getcomposer.org/doc/00-intro.md#autoloading):
