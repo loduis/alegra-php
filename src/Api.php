@@ -2,6 +2,7 @@
 
 namespace Alegra;
 
+use Illuminate\Support\Arr;
 use Illuminate\Api\Http\Api as HttpApi;
 
 class Api
@@ -12,13 +13,6 @@ class Api
      * @var int
      */
     const VERSION  = 'v1';
-
-    /**
-     * The current version of php bindings
-     *
-     * @var  string
-     */
-    const BINDING_VERSION = '0.21.0';
 
     /**
      * Custom options of http client
@@ -34,20 +28,28 @@ class Api
      */
     const BASE_URI = 'https://app.alegra.com/api/';
 
-    public static function login($username, $password)
-    {
-        $client = static::httpClient();
-        $response = $client::toArray('post', 'login', [
-            'email' => $username,
-            'password' => $password
-        ]);
-        static::auth($username, $response['token']);
-    }
-
     public static function auth(...$auth)
     {
+        HttpApi::baseUri(static::BASE_URI . static::VERSION . '/');
+        $options = static::$clientOptions;
+        $options['headers']['User-Agent'] = 'Alegra/' . static::VERSION .
+            ' PhpBindings/' . static::bindingVersion();
+        if (count($auth) === 1 && Arr::isAssoc($auth[0])) {
+            $params = $auth[0];
+            if (Arr::has($params, 'email') && Arr::has($params, 'password')) {
+                $client = HttpApi::createClient($options);
+                $response = $client::toArray('post', 'login', $params);
+                $auth = [
+                    [
+                        $params['email'],
+                        $response['token']
+                    ]
+                ];
+            }
+        }
+
         HttpApi::auth(...$auth);
-        static::httpClient();
+        HttpApi::createClient($options);
     }
 
     /**
@@ -61,12 +63,11 @@ class Api
         static::$clientOptions = $options;
     }
 
-    protected static function httpClient()
+    protected static function bindingVersion()
     {
-        HttpApi::baseUri(static::BASE_URI . static::VERSION . '/');
-        $options = static::$clientOptions;
-        $options['headers']['User-Agent'] = 'Alegra/' . static::VERSION .
-            ' PhpBindings/' . static::BINDING_VERSION;
-        return HttpApi::createClient($options);
+        $content = file_get_contents(__DIR__ . '/../package.json');
+        $options = json_decode($content);
+
+        return $options->version;
     }
 }
