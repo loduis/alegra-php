@@ -36,12 +36,15 @@ class Api
             ' PhpBindings/' . static::bindingVersion();
         if (count($auth) === 1 && Arr::isAssoc($auth[0])) {
             $params = $auth[0];
-            if (Arr::has($params, 'email') && Arr::has($params, 'password')) {
+            if (Arr::has($params, 'username') && Arr::has($params, 'password')) {
                 $client = HttpApi::createClient($options);
-                $response = $client::toArray('post', 'login', $params);
+                $response = $client::toArray('post', 'login', [
+                    'email' => $params['username'],
+                    'password' => $params['password']
+                ]);
                 $auth = [
                     [
-                        $params['email'],
+                        $params['username'],
                         $response['token']
                     ]
                 ];

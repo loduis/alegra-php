@@ -54,6 +54,13 @@ Your test.php script
 require './vendor/autoload.php';
 
 Alegra\Api::auth('Your user', 'Your api token');
+// Also you can auth api with your app credentials
+/*
+Alegra\Api::auth([
+    'username' => 'Your user',
+    'password' => 'Your password'
+]);
+*/
 ```
 
 **Create** an new resource
