@@ -34,14 +34,20 @@ class Api
      */
     const BASE_URI = 'https://app.alegra.com/api/';
 
+    public static function login($username, $password)
+    {
+        $client = static::httpClient();
+        $response = $client::toArray('post', 'login', [
+            'email' => $username,
+            'password' => $password
+        ]);
+        static::auth($username, $response['token']);
+    }
+
     public static function auth(...$auth)
     {
         HttpApi::auth(...$auth);
-        HttpApi::baseUri(static::BASE_URI . static::VERSION . '/');
-        $options = static::$clientOptions;
-        $options['headers']['User-Agent'] = 'Alegra/' . static::VERSION .
-                                            ' PhpBindings/' . static::BINDING_VERSION;
-        HttpApi::createClient($options);
+        static::httpClient();
     }
 
     /**
@@ -53,5 +59,14 @@ class Api
     public static function clientOptions(array $options)
     {
         static::$clientOptions = $options;
+    }
+
+    protected static function httpClient()
+    {
+        HttpApi::baseUri(static::BASE_URI . static::VERSION . '/');
+        $options = static::$clientOptions;
+        $options['headers']['User-Agent'] = 'Alegra/' . static::VERSION .
+            ' PhpBindings/' . static::BINDING_VERSION;
+        return HttpApi::createClient($options);
     }
 }
