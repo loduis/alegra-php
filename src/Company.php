@@ -19,10 +19,12 @@ final class Company extends \Illuminate\Api\Http\Resource
         'currency'           => Support\Currency::class,
         'multicurrency'      => 'bool',
         'decimalPrecision'   => 'int',
-        'invoicePreferences' => 'array',
+        'address'            => Support\Address::class,
+        'invoicePreferences' => 'object',
         'applicationVersion' => 'string',
         'registryDate'       => 'datetime',
-        'address'            => Support\Address::class
+        'logo'               => 'string',
+        'timezone'           => 'string'
     ];
 
     /**
