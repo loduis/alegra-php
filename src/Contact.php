@@ -43,13 +43,19 @@ class Contact extends Resource
         'seller'           => Seller::class,
         'term'             => Term::class,
         'priceList'        => PriceList::class,
-        'internalContacts' => Contact\Internal::collection
+        'internalContacts' => Contact\Internal::collection,
+        'attachments'      => Support\Attachment::collection
     ];
 
     /**
      * Add ability for support metadata
      */
     use Support\Metadata;
+
+    /**
+     * Add ability for support attach file
+     */
+    use Support\Attachable;
 
     protected static function filterWith()
     {

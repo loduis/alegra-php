@@ -16,7 +16,7 @@ trait Attachable
 {
     protected static function macroAttachHandler($resource, $file)
     {
-        $files = static::fileOptions($file);
+        $files = static::prepareFile($file);
 
         $options = [
             'multipart' => $files
@@ -33,16 +33,11 @@ trait Attachable
         return new Attachment($response);
     }
 
-    protected static function fileOptions($file)
+    protected static function prepareFile($file)
     {
         $name = 'file';
         $filename = "$name.txt";
         if (file_exists($file)) {
-            $mime = new finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $mime->file($file);
-            if (strpos($mimeType, 'image/') !== false) {
-                $name = 'image';
-            }
             $file = new SplFileObject($file);
             $filename = $file->getFilename();
         }
@@ -52,5 +47,12 @@ trait Attachable
             'contents' => $file,
             'filename' => $filename
         ];
+    }
+
+    protected static function isImage($file)
+    {
+        $mime = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $mime->file($file);
+        return strpos($mimeType, 'image/') === 0;
     }
 }

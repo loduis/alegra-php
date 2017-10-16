@@ -33,5 +33,16 @@ final class Item extends Resource
     /**
      * Add ability for support attach file
      */
-    use Support\Attachable;
+    use Support\Attachable {
+        prepareFile as _prepareFile;
+    }
+
+    protected function prepareFile($file)
+    {
+        $opts = static::_prepareFile($file);
+        if (static::isImage($opts['contents'])) {
+            $opts['name'] = 'image';
+        }
+        return $opts;
+    }
 }
