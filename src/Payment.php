@@ -15,11 +15,11 @@ final class Payment extends Resource
 
     public function void()
     {
-        $this->store('POST', $this->id . '/void');
+        return $this->selfPost('void');
     }
 
     public function open()
     {
-        $this->store('POST', $this->id . '/open');
+        return $this->selfPost('open');
     }
 }

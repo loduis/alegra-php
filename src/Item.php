@@ -2,6 +2,8 @@
 
 namespace Alegra;
 
+use Alegra\Support\Attachment;
+
 final class Item extends Resource
 {
     /**
@@ -18,11 +20,18 @@ final class Item extends Resource
         'category'    => Category::class,
         'price'       => Item\Price::collection, // this is a collection of Price
         'tax'         => Tax::collection, // this a collection of Tax
-        'inventory'   => Item\Inventory::class
+        'inventory'   => Item\Inventory::class,
+        'images'      => Attachment::collection,
+        'attachments' => Attachment::collection
     ];
 
     /**
      * Add ability for support metadata
      */
     use Support\Metadata;
+
+    /**
+     * Add ability for support attach file
+     */
+    use Support\Attachable;
 }
