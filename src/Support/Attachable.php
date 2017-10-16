@@ -51,8 +51,12 @@ trait Attachable
 
     protected static function isImage($file)
     {
+        if (!$file instanceof SplFileObject) {
+            return false;
+        }
         $mime = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $mime->file($file);
+        $mimeType = $mime->file($file->getRealPath());
+
         return strpos($mimeType, 'image/') === 0;
     }
 }

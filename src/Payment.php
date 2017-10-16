@@ -4,22 +4,28 @@ namespace Alegra;
 
 final class Payment extends Resource
 {
+    protected static $casts = [
+        'bankAccount' => BankAccount::class,
+        'attachments' => Support\Attachment::collection
+    ];
+
     /**
      * Add ability for support metadata
      */
     use Support\Metadata;
 
-    protected static $casts = [
-        'bankAccount' => BankAccount::class,
-    ];
+    /**
+     * Add ability for support attach file
+     */
+    use Support\Attachable;
 
     public function void()
     {
-        return $this->selfPost('void');
+        return $this->postTo('void');
     }
 
     public function open()
     {
-        return $this->selfPost('open');
+        return $this->postTo('open');
     }
 }

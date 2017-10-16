@@ -42,7 +42,7 @@ abstract class Resource extends ApiResource
         return $this->store($this->id === null ? 'POST' : 'PUT', $this->id);
     }
 
-    protected function selfPost($path, $params)
+    protected function postTo($path, $params)
     {
         return $this->store('POST', $this->id . '/' . $path, $this);
     }

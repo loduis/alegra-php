@@ -37,7 +37,7 @@ final class Item extends Resource
         prepareFile as _prepareFile;
     }
 
-    protected function prepareFile($file)
+    protected static function prepareFile($file)
     {
         $opts = static::_prepareFile($file);
         if (static::isImage($opts['contents'])) {
