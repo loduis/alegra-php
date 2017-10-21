@@ -2,6 +2,8 @@
 
 namespace Alegra\Item;
 
+use Alegra\Warehouse;
+
 class Inventory extends \Illuminate\Api\Resource\Model
 {
     /**
@@ -11,7 +13,9 @@ class Inventory extends \Illuminate\Api\Resource\Model
      */
     protected static $casts = [
         'unitCost' => 'float',
-        'initialQuantity' => 'float'
+        'initialQuantity' => 'float',
+        'availableQuantity' => 'float',
+        'warehouses' => Warehouse::collection
     ];
 
     /**
