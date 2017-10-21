@@ -4,7 +4,9 @@ namespace Alegra\Support;
 
 use finfo;
 use SplFileObject;
+use UnexpectedValueException;
 use Illuminate\Support\Arr;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 /**
  * adds the ability to appeal to be sent by email
@@ -16,11 +18,15 @@ trait Attachable
 {
     protected static function macroAttachHandler($resource, $file)
     {
-        $files = static::prepareFile($file);
+        return static::upload($resource, 'file', $file);
+    }
 
+    protected static function upload($resource, $name, $file)
+    {
         $options = [
-            'multipart' => $files
+            'multipart' => static::prepareFile($name, $file)
         ];
+
         if (static::isResource($resource)) {
             $resource = $resource->id;
         }
@@ -33,19 +39,20 @@ trait Attachable
         return new Attachment($response);
     }
 
-    protected static function prepareFile($file)
+    protected static function prepareFile($name, $file)
     {
-        $name = 'file';
-        $filename = "$name.txt";
-        if (file_exists($file)) {
-            $file = new SplFileObject($file);
-            $filename = $file->getFilename();
+        if (!file_exists($file)) {
+            throw new FileNotFoundException('Not exists file: ' . $file);
+        }
+        $file = new SplFileObject($file);
+        if ($name === 'file' && !static::isImage($file)) {
+            throw new UnexpectedValueException('This file is not an image: ' . $file);
         }
 
         return [
             'name' => $name,
             'contents' => $file,
-            'filename' => $filename
+            'filename' => $file->getFilename()
         ];
     }
 

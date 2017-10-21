@@ -31,18 +31,7 @@ final class Item extends Resource
     use Support\Metadata;
 
     /**
-     * Add ability for support attach file
+     * Add ability for support attach file and images
      */
-    use Support\Attachable {
-        prepareFile as _prepareFile;
-    }
-
-    protected static function prepareFile($file)
-    {
-        $opts = static::_prepareFile($file);
-        if (static::isImage($opts['contents'])) {
-            $opts['name'] = 'image';
-        }
-        return $opts;
-    }
+    use Support\Photoable;
 }
